@@ -19,3 +19,7 @@
 
 - api-bank-central
  responsavel por ser o centro de todas as transacoes, guardar historico de movimentacoes, criacao de bancos, criacao de contas, liberacao de transferencia
+
+## Fluxo grama
+![image](https://github.com/user-attachments/assets/1dcf2a2b-7268-44c3-88fc-cd496ea125f4)
+
