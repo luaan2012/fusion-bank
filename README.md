@@ -21,6 +21,7 @@
  responsavel por ser o centro de todas as transacoes, guardar historico de movimentacoes, criacao de bancos, criacao de contas, liberacao de transferencia
 
 ## Fluxo grama
-![image](https://github.com/user-attachments/assets/f9d9c90c-2646-4b8f-bd24-473dbb0d3be3)
+![image](https://github.com/user-attachments/assets/e2fd4458-dcf4-4171-b668-b62c89de72f1)
+
 
 
