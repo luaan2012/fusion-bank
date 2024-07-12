@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34707.107
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{A09FD446-4A56-4782-A10F-71142A2E1A28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-central", "fusion-bank-central", "{587C815C-13B1-4A05-9C55-1984A8DD7432}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-central-api", "services\fusion-bank-central\fusion-bank-central-api\fusion-bank-central-api.csproj", "{EF62FF3A-3F29-42BE-AA50-854B8F10456A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-central-domain", "services\fusion-bank-central\fusion-bank-central-domain\fusion-bank-central-domain.csproj", "{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EF62FF3A-3F29-42BE-AA50-854B8F10456A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF62FF3A-3F29-42BE-AA50-854B8F10456A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF62FF3A-3F29-42BE-AA50-854B8F10456A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF62FF3A-3F29-42BE-AA50-854B8F10456A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{587C815C-13B1-4A05-9C55-1984A8DD7432} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{EF62FF3A-3F29-42BE-AA50-854B8F10456A} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
+		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F783F87-2A89-4167-8A02-8E7E9539D77B}
+	EndGlobalSection
+EndGlobal
