@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>fusion.bank.deposit.api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\fusion-bank-deposit-domain\fusion-bank-deposit-domain.csproj" />
+    <ProjectReference Include="..\fusion-bank-deposit-repository\fusion-bank-deposit-repository.csproj" />
+    <ProjectReference Include="..\fusion-bank-deposit-services\fusion-bank-deposit-services.csproj" />
+  </ItemGroup>
+
+</Project>

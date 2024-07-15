@@ -2,17 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>fusion.bank.central.domain</RootNamespace>
+    <RootNamespace>fusion.bank.deposit.services</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Bson" Version="2.27.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\fusion-bank-core\fusion-bank-core.csproj" />
+    <ProjectReference Include="..\fusion-bank-deposit-domain\fusion-bank-deposit-domain.csproj" />
   </ItemGroup>
 
 </Project>

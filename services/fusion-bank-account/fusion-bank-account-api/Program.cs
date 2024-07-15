@@ -1,25 +1,31 @@
-using fusion.bank.central.domain.Interfaces;
-using fusion.bank.central.repository;
-using fusion.bank.central.service;
+using fusion.bank.account.domain.Interfaces;
+using fusion.bank.account.repository;
+using fusion.bank.account.service;
+using fusion.bank.account.Service;
+using fusion.bank.core.Messages.Consumers;
+using fusion.bank.core.Messages.Producers;
 using MassTransit;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); }); ;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 builder.Services.AddMassTransit(busCfg =>
 {
     busCfg.SetKebabCaseEndpointNameFormatter();
 
-    busCfg.AddConsumer<NewAccount>();
-    busCfg.AddConsumer<NewDepositCentral>();
+    busCfg.AddConsumer<CreatedAccount>();
+    busCfg.AddConsumer<NewDepositAccount>();
+
+    busCfg.AddRequestClient<NewDepositCentralRequest>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>
     {
@@ -28,6 +34,7 @@ builder.Services.AddMassTransit(busCfg =>
         cfg.ConfigureEndpoints(ctx);
     });
 });
+
 
 var app = builder.Build();
 

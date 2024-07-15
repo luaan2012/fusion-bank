@@ -1,6 +1,6 @@
-@fusion_bank_central_HostAddress = http://localhost:5286
+@fusion.bank.central_HostAddress = http://localhost:5286
 
-GET {{fusion_bank_central_HostAddress}}/weatherforecast/
+GET {{fusion.bank.central_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

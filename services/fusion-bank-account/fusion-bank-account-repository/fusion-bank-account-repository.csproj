@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>fusion.bank.central.repository</RootNamespace>
+    <RootNamespace>fusion.bank.account.repository</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\fusion-bank-central-domain\fusion-bank-central-domain.csproj" />
+    <ProjectReference Include="..\fusion-bank-account-domain\fusion-bank-account-domain.csproj" />
   </ItemGroup>
 
 </Project>

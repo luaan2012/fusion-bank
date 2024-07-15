@@ -1,6 +1,7 @@
-using fusion.bank.central.domain.Interfaces;
-using fusion.bank.central.repository;
-using fusion.bank.central.service;
+using fusion.bank.core.Messages.Producers;
+using fusion.bank.deposit.domain.Interfaces;
+using fusion.deposit.deposit.repository;
+using fusion_bank_deposit_services;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,15 +12,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IDepositRepository, DepositRepository>();
 
 builder.Services.AddMassTransit(busCfg =>
 {
     busCfg.SetKebabCaseEndpointNameFormatter();
 
-    busCfg.AddConsumer<NewAccount>();
-    busCfg.AddConsumer<NewDepositCentral>();
+    busCfg.AddConsumer<DepositedAccount>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>
     {

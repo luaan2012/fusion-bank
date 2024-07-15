@@ -7,9 +7,37 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{A0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-central", "fusion-bank-central", "{587C815C-13B1-4A05-9C55-1984A8DD7432}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-central-api", "services\fusion-bank-central\fusion-bank-central-api\fusion-bank-central-api.csproj", "{EF62FF3A-3F29-42BE-AA50-854B8F10456A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-central-api", "services\fusion-bank-central\fusion-bank-central-api\fusion-bank-central-api.csproj", "{EF62FF3A-3F29-42BE-AA50-854B8F10456A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-central-domain", "services\fusion-bank-central\fusion-bank-central-domain\fusion-bank-central-domain.csproj", "{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-central-domain", "services\fusion-bank-central\fusion-bank-central-domain\fusion-bank-central-domain.csproj", "{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-central-repository", "services\fusion-bank-central\fusion-bank-central-repository\fusion-bank-central-repository.csproj", "{7D73E2CB-8B7A-4772-BB92-33D400C77852}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-account", "fusion-bank-account", "{7EBFC630-357D-405E-A28A-83D822F5D778}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-account-api", "services\fusion-bank-account\fusion-bank-account-api\fusion-bank-account-api.csproj", "{5EF7FBCB-3000-4837-B952-1DB2A67F0377}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-account-domain", "services\fusion-bank-account\fusion-bank-account-domain\fusion-bank-account-domain.csproj", "{377CBBBA-04D0-4722-99E7-46AE6F886A91}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-account-repository", "services\fusion-bank-account\fusion-bank-account-repository\fusion-bank-account-repository.csproj", "{D6EE989A-DA17-4168-ACDD-8B9053409072}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-core", "fusion-bank-core", "{E75CF196-B744-44F3-8E37-B756BB409786}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-core", "services\fusion-bank-core\fusion-bank-core.csproj", "{F107F2B4-306B-4B32-9089-F1D38B57B504}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-account-service", "services\fusion-bank-account\fusion-bank-account-service\fusion-bank-account-service.csproj", "{37C857D4-D6BE-404E-B922-51D0EAD55269}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fusion-bank-central-service", "services\fusion-bank-central\fusion-bank-central-service\fusion-bank-central-service.csproj", "{E6CDB3EE-1A98-4677-B711-6DF342C0F127}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-deposit", "fusion-bank-deposit", "{0F77FEAB-49E3-4037-AA83-0A657AA1C0E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-deposit-domain", "services\fusion-bank-deposit\fusion-bank-deposit-domain\fusion-bank-deposit-domain.csproj", "{3DA25147-63CD-4AE6-B3ED-105B1076846A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-deposit-repository", "services\fusion-bank-deposit\fusion-bank-deposit-repository\fusion-bank-deposit-repository.csproj", "{99A6C301-63EC-45D3-9CF8-E254FCD85416}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-deposit-services", "services\fusion-bank-deposit\fusion-bank-deposit-services\fusion-bank-deposit-services.csproj", "{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-deposit-api", "services\fusion-bank-deposit\fusion-bank-deposit-api\fusion-bank-deposit-api.csproj", "{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +53,50 @@ Global
 		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D73E2CB-8B7A-4772-BB92-33D400C77852}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D73E2CB-8B7A-4772-BB92-33D400C77852}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D73E2CB-8B7A-4772-BB92-33D400C77852}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D73E2CB-8B7A-4772-BB92-33D400C77852}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EF7FBCB-3000-4837-B952-1DB2A67F0377}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EF7FBCB-3000-4837-B952-1DB2A67F0377}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EF7FBCB-3000-4837-B952-1DB2A67F0377}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EF7FBCB-3000-4837-B952-1DB2A67F0377}.Release|Any CPU.Build.0 = Release|Any CPU
+		{377CBBBA-04D0-4722-99E7-46AE6F886A91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{377CBBBA-04D0-4722-99E7-46AE6F886A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{377CBBBA-04D0-4722-99E7-46AE6F886A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{377CBBBA-04D0-4722-99E7-46AE6F886A91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6EE989A-DA17-4168-ACDD-8B9053409072}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6EE989A-DA17-4168-ACDD-8B9053409072}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6EE989A-DA17-4168-ACDD-8B9053409072}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6EE989A-DA17-4168-ACDD-8B9053409072}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F107F2B4-306B-4B32-9089-F1D38B57B504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F107F2B4-306B-4B32-9089-F1D38B57B504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F107F2B4-306B-4B32-9089-F1D38B57B504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F107F2B4-306B-4B32-9089-F1D38B57B504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37C857D4-D6BE-404E-B922-51D0EAD55269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37C857D4-D6BE-404E-B922-51D0EAD55269}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37C857D4-D6BE-404E-B922-51D0EAD55269}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37C857D4-D6BE-404E-B922-51D0EAD55269}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6CDB3EE-1A98-4677-B711-6DF342C0F127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6CDB3EE-1A98-4677-B711-6DF342C0F127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6CDB3EE-1A98-4677-B711-6DF342C0F127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6CDB3EE-1A98-4677-B711-6DF342C0F127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DA25147-63CD-4AE6-B3ED-105B1076846A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DA25147-63CD-4AE6-B3ED-105B1076846A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DA25147-63CD-4AE6-B3ED-105B1076846A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DA25147-63CD-4AE6-B3ED-105B1076846A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99A6C301-63EC-45D3-9CF8-E254FCD85416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99A6C301-63EC-45D3-9CF8-E254FCD85416}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99A6C301-63EC-45D3-9CF8-E254FCD85416}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99A6C301-63EC-45D3-9CF8-E254FCD85416}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -33,6 +105,20 @@ Global
 		{587C815C-13B1-4A05-9C55-1984A8DD7432} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
 		{EF62FF3A-3F29-42BE-AA50-854B8F10456A} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
 		{98E6C1EA-54C5-435E-ADEC-F2C9CF4D4932} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
+		{7D73E2CB-8B7A-4772-BB92-33D400C77852} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
+		{7EBFC630-357D-405E-A28A-83D822F5D778} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{5EF7FBCB-3000-4837-B952-1DB2A67F0377} = {7EBFC630-357D-405E-A28A-83D822F5D778}
+		{377CBBBA-04D0-4722-99E7-46AE6F886A91} = {7EBFC630-357D-405E-A28A-83D822F5D778}
+		{D6EE989A-DA17-4168-ACDD-8B9053409072} = {7EBFC630-357D-405E-A28A-83D822F5D778}
+		{E75CF196-B744-44F3-8E37-B756BB409786} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{F107F2B4-306B-4B32-9089-F1D38B57B504} = {E75CF196-B744-44F3-8E37-B756BB409786}
+		{37C857D4-D6BE-404E-B922-51D0EAD55269} = {7EBFC630-357D-405E-A28A-83D822F5D778}
+		{E6CDB3EE-1A98-4677-B711-6DF342C0F127} = {587C815C-13B1-4A05-9C55-1984A8DD7432}
+		{0F77FEAB-49E3-4037-AA83-0A657AA1C0E8} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{3DA25147-63CD-4AE6-B3ED-105B1076846A} = {0F77FEAB-49E3-4037-AA83-0A657AA1C0E8}
+		{99A6C301-63EC-45D3-9CF8-E254FCD85416} = {0F77FEAB-49E3-4037-AA83-0A657AA1C0E8}
+		{441BF6CB-98DA-4706-A7B3-86B3AA4BA5C9} = {0F77FEAB-49E3-4037-AA83-0A657AA1C0E8}
+		{ABC4A4C4-7907-4135-9B07-5E97BAFBEBB5} = {0F77FEAB-49E3-4037-AA83-0A657AA1C0E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F783F87-2A89-4167-8A02-8E7E9539D77B}

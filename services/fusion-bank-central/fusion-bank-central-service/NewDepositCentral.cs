@@ -1,0 +1,37 @@
+﻿using fusion.bank.central.domain.Interfaces;
+using fusion.bank.core.Messages.Consumers;
+using fusion.bank.core.Messages.Producers;
+using MassTransit;
+
+namespace fusion.bank.central.service
+{
+    public class NewDepositCentral(IPublishEndpoint bus, IBankRepository bankRepository) : IConsumer<NewDepositCentralRequest>
+    {
+        public async Task Consume(ConsumeContext<NewDepositCentralRequest> context)
+        {
+            var bankAccount = await bankRepository.ListAccountBankById(context.Message.AccountId);
+
+            if (bankAccount == null)
+            {
+                return;
+            }
+
+            //await Task.Delay(8000);
+
+            var accountUpdate = bankAccount.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);
+
+            if(accountUpdate is null)
+            {
+                return;
+            }
+
+            accountUpdate = accountUpdate with { Balance =  context.Message.Amount };
+
+            bankAccount.UpdateAccount(context.Message.AccountId, accountUpdate);
+
+            await bankRepository.UpdateBank(bankAccount);
+
+            await context.RespondAsync(new DepositedCentralResponse(context.Message.DepositId, true));
+        }
+    }
+}

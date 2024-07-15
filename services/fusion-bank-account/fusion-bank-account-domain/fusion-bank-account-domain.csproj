@@ -2,14 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>fusion.bank.central.domain</RootNamespace>
+    <RootNamespace>fusion.bank.account.domain</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Bson" Version="2.27.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\fusion-bank-core\fusion-bank-core.csproj" />

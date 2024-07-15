@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>fusion.bank.account.api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\fusion-bank-account-domain\fusion-bank-account-domain.csproj" />
+    <ProjectReference Include="..\fusion-bank-account-repository\fusion-bank-account-repository.csproj" />
+    <ProjectReference Include="..\fusion-bank-account-service\fusion-bank-account-service.csproj" />
+  </ItemGroup>
+
+</Project>

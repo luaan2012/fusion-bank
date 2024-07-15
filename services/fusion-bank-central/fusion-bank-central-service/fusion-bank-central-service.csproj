@@ -2,14 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>fusion.bank.central.repository</RootNamespace>
+    <RootNamespace>fuison.bank.central.service</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\fusion-bank-central-domain\fusion-bank-central-domain.csproj" />
