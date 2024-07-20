@@ -1,0 +1,41 @@
+﻿using fusion.bank.transfer.domain;
+using fusion.bank.transfer.domain.Interfaces;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Driver;
+
+namespace fusion.bank.transfer.repository
+{
+    public class TransferRepository : ITransferRepository
+    {
+        private readonly IMongoCollection<Transfer> transferCollection;
+
+        public TransferRepository(IConfiguration configuration)
+        {
+            var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
+            var dataBase = client.GetDatabase("fusion_db");
+            transferCollection = dataBase.GetCollection<Transfer>("transferCollection");
+        }
+
+        public async Task SaveTransfer(Transfer transfer)
+        {
+            await transferCollection.InsertOneAsync(transfer);
+        }
+
+        public async Task UpdateTransfer(Transfer transfer)
+        {
+            var filter = Builders<Transfer>.Filter.Eq(d => d.TransferId, transfer.TransferId);
+
+            await transferCollection.ReplaceOneAsync(filter, transfer);
+        }
+
+        public async Task<List<Transfer>> ListAllSchedules()
+        {
+            var filter = Builders<Transfer>.Filter.And(
+                    Builders<Transfer>.Filter.Eq(d => d.TransferStatus, domain.Enum.TransferStatus.CREATED),
+                    Builders<Transfer>.Filter.Lte(d => d.ScheduleDate, DateTime.Now)
+                );
+
+            return await (await transferCollection.FindAsync(filter)).ToListAsync();
+        }
+    }
+}

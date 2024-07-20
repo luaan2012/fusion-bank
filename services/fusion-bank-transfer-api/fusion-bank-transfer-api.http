@@ -1,0 +1,6 @@
+@fusion_bank_transfer_api_HostAddress = http://localhost:5100
+
+GET {{fusion_bank_transfer_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

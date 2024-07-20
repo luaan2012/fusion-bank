@@ -40,5 +40,26 @@ namespace fusion.bank.account.Controllers
             return Ok(await accountRepository.ListAccountById(id));
         }
 
+        [HttpGet("list-account-by-key-account/key:string")]
+        public async Task<IActionResult> ListAccountById(string keyAccount)
+        {
+            return Ok(await accountRepository.ListAccountByKey(keyAccount));
+        }
+
+        [HttpPost("register-key-account/id:guid/key:string")]
+        public async Task<IActionResult> ListAccountById(Guid id, string keyAccount)
+        {
+            var account = await accountRepository.ListAccountById(id);
+
+            if(account is null)
+            {
+                return BadRequest("Account not found");
+            }
+
+            await accountRepository.SaveKeyByAccount(id, keyAccount);
+
+            return Ok();
+        }
+
     }
 }

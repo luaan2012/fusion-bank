@@ -23,6 +23,11 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.AccountId == id)).FirstOrDefault();
         }
 
+        public async Task<Account> ListAccountByKey(string keyAccount)
+        {
+            return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<Account>> ListAllAccount()
         {
             var filter = new BsonDocument();
@@ -33,6 +38,15 @@ namespace fusion.bank.account.repository
         {
             await accountCollection.InsertOneAsync(account);
         }
+
+        public async Task SaveKeyByAccount(Guid idAccount, string keyAccount)
+        {
+            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, idAccount);
+            var update = Builders<Account>.Update.Set(d => d.KeyAccount, keyAccount);
+
+            await accountCollection.UpdateOneAsync(filter, update);
+        }
+
 
         public async Task UpdateAccount(Account account)
         {

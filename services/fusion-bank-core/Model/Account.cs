@@ -13,6 +13,7 @@ namespace fusion.bank.core.Model
         public string FullName { get; private set; }
         public string BankName { get; private set; }
         public string BankISBP { get; private set; }
+        public string KeyAccount { get; private set; }
         public string AccountNumber { get; internal set; }
         public decimal Balance { get; internal set; }
         public decimal TransferLimit { get; internal set; }
