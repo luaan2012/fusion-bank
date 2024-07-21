@@ -1,4 +1,4 @@
-﻿namespace fusion.bank.core.Messages.Consumers
+﻿namespace fusion.bank.core.Messages.Responses
 {
     //public record DepositedCentralConsumer(Guid DepositId, bool Deposited);
 
@@ -12,7 +12,7 @@
 
         public DepositedCentralResponse()
         {
-            
+
         }
 
         public Guid DepositId { get; set; }

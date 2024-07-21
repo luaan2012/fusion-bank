@@ -1,4 +1,4 @@
-﻿namespace fusion.bank.core.Messages.Producers
+﻿namespace fusion.bank.core.Messages.Requests
 {
 
     public class NewDepositCentralRequest
@@ -13,7 +13,7 @@
 
         public NewDepositCentralRequest()
         {
-            
+
         }
 
         public Guid AccountId { get; set; }

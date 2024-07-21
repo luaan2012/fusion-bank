@@ -1,13 +1,13 @@
 ﻿using fusion.bank.account.domain.Interfaces;
 using fusion.bank.core.Enum;
-using fusion.bank.core.Messages.Consumers;
+using fusion.bank.core.Messages.Producers;
 using MassTransit;
 
 namespace fusion.bank.account.Service
 {
-    public class CreatedAccount(IAccountRepository accountRepository) : IConsumer<CreatedAccountConsumer>
+    public class CreatedAccountConsumer(IAccountRepository accountRepository) : IConsumer<CreatedAccountProducer>
     {
-        public async Task Consume(ConsumeContext<CreatedAccountConsumer> context)
+        public async Task Consume(ConsumeContext<CreatedAccountProducer> context)
         {
             var account = await accountRepository.ListAccountById(context.Message.AccountId);
 

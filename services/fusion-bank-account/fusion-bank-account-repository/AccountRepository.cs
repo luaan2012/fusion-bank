@@ -23,6 +23,11 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.AccountId == id)).FirstOrDefault();
         }
 
+        public async Task<Account> ListAccountByNumberAccount(string accountNumber)
+        {
+            return (await accountCollection.FindAsync(d => d.AccountNumber == accountNumber)).FirstOrDefault();
+        }
+
         public async Task<Account> ListAccountByKey(string keyAccount)
         {
             return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();

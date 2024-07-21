@@ -1,11 +1,12 @@
 ﻿using fusion.bank.account.domain.Interfaces;
-using fusion.bank.core.Messages.Consumers;
 using fusion.bank.core.Messages.Producers;
+using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Messages.Responses;
 using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewDepositAccount(IAccountRepository accountRepository, IPublishEndpoint bus, IRequestClient<NewDepositCentralRequest> requestClient) : IConsumer<NewDepositAccountProducer>
+    public class NewDepositAccountConsumer(IAccountRepository accountRepository, IPublishEndpoint bus, IRequestClient<NewDepositCentralRequest> requestClient) : IConsumer<NewDepositAccountProducer>
     {
         public async Task Consume(ConsumeContext<NewDepositAccountProducer> context)
         {
@@ -29,7 +30,7 @@ namespace fusion.bank.account.service
 
             await accountRepository.UpdateAccount(account);
 
-            await bus.Publish(new DepositedAccountConsumer(context.Message.DepositId, true));
+            await bus.Publish(new DepositedAccountProducer(context.Message.DepositId, true));
         }
     }
 }

@@ -4,6 +4,8 @@
     {
         Task SaveTransfer(Transfer transfer);
         Task UpdateTransfer(Transfer transfer);
-        Task<List<Transfer>> ListAllSchedules()
+        Task<List<Transfer>> ListAllSchedules();
+        Task<Transfer> ListById(Guid transferId);
+        Task<List<Transfer>> ListAllTransfers();
     }
 }

@@ -1,12 +1,12 @@
-﻿using fusion.bank.core.Messages.Consumers;
+﻿using fusion.bank.core.Messages.Producers;
 using fusion.bank.deposit.domain.Interfaces;
 using MassTransit;
 
-namespace fusion_bank_deposit_services
+namespace fusion.bank.deposit.services
 {
-    public class DepositedAccount(IDepositRepository depositRepository) : IConsumer<DepositedAccountConsumer>
+    public class DepositedAccount(IDepositRepository depositRepository) : IConsumer<DepositedAccountProducer>
     {
-        public async Task Consume(ConsumeContext<DepositedAccountConsumer> context)
+        public async Task Consume(ConsumeContext<DepositedAccountProducer> context)
         {
             var deposit = await depositRepository.GetDepositById(context.Message.DepositId);
 

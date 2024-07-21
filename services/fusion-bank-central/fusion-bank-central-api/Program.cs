@@ -18,7 +18,7 @@ builder.Services.AddMassTransit(busCfg =>
 {
     busCfg.SetKebabCaseEndpointNameFormatter();
 
-    busCfg.AddConsumer<NewAccount>();
+    busCfg.AddConsumer<NewAccountCentralConsumer>();
     busCfg.AddConsumer<NewDepositCentral>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>

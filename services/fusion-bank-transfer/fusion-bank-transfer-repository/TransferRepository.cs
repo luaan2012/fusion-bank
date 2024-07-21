@@ -37,5 +37,19 @@ namespace fusion.bank.transfer.repository
 
             return await (await transferCollection.FindAsync(filter)).ToListAsync();
         }
+
+        public async Task<List<Transfer>> ListAllTransfers()
+        {
+            var filter = FilterDefinition<Transfer>.Empty;
+
+            return await (await transferCollection.FindAsync(filter)).ToListAsync();
+        }
+
+        public async Task<Transfer> ListById(Guid transferId)
+        {
+            var filter = Builders<Transfer>.Filter.Eq(d => d.TransferId, transferId);
+
+            return await (await transferCollection.FindAsync(filter)).FirstOrDefaultAsync();
+        }
     }
 }

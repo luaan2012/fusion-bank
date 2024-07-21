@@ -1,4 +1,7 @@
-﻿using fusion.bank.transfer.domain.Interfaces;
+﻿using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Messages.Responses;
+using fusion.bank.transfer.domain.Interfaces;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,12 +30,19 @@ namespace fusion.bank.transfer.services
             using(var create = _serviceProvider.CreateScope())
             {
                 var transferRepository = create.ServiceProvider.GetRequiredService<ITransferRepository>();
+                var requestClient = create.ServiceProvider.GetRequiredService<IRequestClient<NewTransferAccountRequest>>();
 
                 var schedules = await transferRepository.ListAllSchedules();
 
                 foreach (var schedule in schedules)
                 {
+                    var response = await requestClient.GetResponse<TransferredAccountResponse>(new NewTransferAccountRequest(schedule.TransferType, schedule.KeyAccount, schedule.Amount));
 
+                    if (response.Message.Transferred)
+                    {
+                        schedule.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
+                        await transferRepository.SaveTransfer(schedule);
+                    }
                 }
             }
         }

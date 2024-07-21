@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\fusion-bank-core\fusion-bank-core.csproj" />
     <ProjectReference Include="..\fusion-bank-transfer-domain\fusion-bank-transfer-domain.csproj" />
   </ItemGroup>
 
