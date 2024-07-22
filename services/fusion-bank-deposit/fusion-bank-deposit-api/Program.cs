@@ -1,7 +1,7 @@
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.deposit.domain.Interfaces;
+using fusion.bank.deposit.services;
 using fusion.deposit.deposit.repository;
-using fusion_bank_deposit_services;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +18,7 @@ builder.Services.AddMassTransit(busCfg =>
 {
     busCfg.SetKebabCaseEndpointNameFormatter();
 
-    busCfg.AddConsumer<DepositedAccount>();
+    busCfg.AddConsumer<DepositedAccountResponse>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>
     {

@@ -8,10 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace fusion.bank.transfer.services
 {
-    public class TransferBackground : IHostedService, IDisposable
+    public class TransferBackground(ILogger<TransferBackground> _logger, IServiceProvider _serviceProvider) : IHostedService, IDisposable
     {
-        private readonly ILogger<TransferBackground> _logger;   
-        private readonly IServiceProvider _serviceProvider;
+        //private readonly ILogger<TransferBackground> _logger;   
         private Timer _timer;
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -41,7 +40,7 @@ namespace fusion.bank.transfer.services
                     if (response.Message.Transferred)
                     {
                         schedule.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
-                        await transferRepository.SaveTransfer(schedule);
+                        await transferRepository.UpdateTransfer(schedule);
                     }
                 }
             }

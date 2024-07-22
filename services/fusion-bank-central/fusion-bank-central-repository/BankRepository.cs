@@ -31,6 +31,16 @@ namespace fusion.bank.central.repository
             return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountId == id))).FirstOrDefault();
         }
 
+        public async Task<Bank> ListAccountBankByKeyAccount(string keyAccount)
+        {
+            return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.keyAccount == keyAccount))).FirstOrDefault();
+        }
+
+        public async Task<Bank> ListAccountBankByAccountNumber(string accountNumber)
+        {
+            return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountNumber == accountNumber))).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<Bank>> ListAllBank()
         {
             return await bankCollection.AsQueryable().ToListAsync();

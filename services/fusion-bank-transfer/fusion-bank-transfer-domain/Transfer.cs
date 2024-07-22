@@ -1,10 +1,12 @@
 ﻿using fusion.bank.transfer.domain.Enum;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace fusion.bank.transfer.domain
 {
     public class Transfer
     {
-        public Guid TransferId { get; set; }    
+        [BsonId]
+        public Guid TransferId { get; internal set; }    
         public string AccountNumberReceive { get; set; }
         public string KeyAccount { get; set; }
         public decimal Amount { get; set; }

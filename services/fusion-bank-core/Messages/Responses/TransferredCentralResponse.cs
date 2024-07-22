@@ -2,6 +2,11 @@
 {
     public class TransferredCentralResponse
     {
+        public TransferredCentralResponse(bool transferred)
+        {
+            Transferred = transferred;
+        }
+
         public bool Transferred { get; set; }
     }
 }

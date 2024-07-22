@@ -1,6 +1,8 @@
 using fusion.bank.account.domain.Interfaces;
 using fusion.bank.core.Enum;
 using fusion.bank.core.Messages.Producers;
+using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ namespace fusion.bank.account.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AccountController(IAccountRepository accountRepository, ILogger<AccountController> logger, IPublishEndpoint bus) : ControllerBase
+    public class AccountController(IAccountRepository accountRepository, ILogger<AccountController> logger, IPublishEndpoint bus, IRequestClient<NewKeyAccountRequest> requestClient) : ControllerBase
     {
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount(string name, string lastName, decimal salaryPerMonth, AccountType accountType, string bankISBP, string bankName)
@@ -22,7 +24,7 @@ namespace fusion.bank.account.Controllers
             await bus.Publish(new NewAccountProducer(account.AccountId, 
                 account.Name, account.LastName, account.FullName, account.AccountNumber, 
                 account.Balance, account.TransferLimit, account.SalaryPerMonth, 
-                account.AccountType, account.BankISBP
+                account.AccountType, account.BankISBP, account.KeyAccount
             ));
 
             return Ok($"Obrigado por ser inscrever no {bankName}. Estamos analizando todas informações e te notificaremos em breve sobre o status de criação da sua conta.");
@@ -56,6 +58,13 @@ namespace fusion.bank.account.Controllers
                 return BadRequest("Account not found");
             }
 
+            var response = await requestClient.GetResponse<CreatedKeyAccountResponse>(new NewKeyAccountRequest(account.AccountId, keyAccount));
+
+            if(!response.Message.Created)
+            {
+                return BadRequest("Error trying to create key");
+            }
+            
             await accountRepository.SaveKeyByAccount(id, keyAccount);
 
             return Ok();

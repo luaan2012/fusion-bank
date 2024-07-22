@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\fusion-bank-core\fusion-bank-core.csproj" />
     <ProjectReference Include="..\fusion-bank-transfer\fusion-bank-transfer-domain\fusion-bank-transfer-domain.csproj" />
+    <ProjectReference Include="..\fusion-bank-transfer\fusion-bank-transfer-repository\fusion-bank-transfer-repository.csproj" />
     <ProjectReference Include="..\fusion-bank-transfer\fusion-bank-transfer-services\fusion-bank-transfer-services.csproj" />
   </ItemGroup>
 

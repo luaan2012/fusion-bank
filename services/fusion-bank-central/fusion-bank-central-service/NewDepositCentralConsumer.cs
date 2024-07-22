@@ -1,5 +1,4 @@
 ﻿using fusion.bank.central.domain.Interfaces;
-using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using MassTransit;
@@ -32,7 +31,7 @@ namespace fusion.bank.central.service
 
             await bankRepository.UpdateBank(bankAccount);
 
-            await context.RespondAsync(new DepositedCentralProducer(context.Message.DepositId, true));
+            await context.RespondAsync(new DepositedCentralResponse(context.Message.DepositId, true));
         }
     }
 }

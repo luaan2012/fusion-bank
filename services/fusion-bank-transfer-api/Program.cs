@@ -1,5 +1,6 @@
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.transfer.domain.Interfaces;
+using fusion.bank.transfer.repository;
 using fusion.bank.transfer.services;
 using MassTransit;
 
@@ -11,7 +12,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ITransferRepository, ITransferRepository>();
+builder.Services.AddScoped<ITransferRepository, TransferRepository>();
 builder.Services.AddHostedService<TransferBackground>();
 
 builder.Services.AddMassTransit(busCfg =>

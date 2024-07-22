@@ -27,6 +27,7 @@ builder.Services.AddMassTransit(busCfg =>
 
     busCfg.AddRequestClient<NewDepositCentralRequest>();
     busCfg.AddRequestClient<NewTransferCentralRequest>();
+    busCfg.AddRequestClient<NewKeyAccountRequest>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>
     {

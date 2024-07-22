@@ -35,7 +35,7 @@ namespace fusion.bank.account.service
 
             await accountRepository.UpdateAccount(account);
 
-            await bus.Publish(new TransferredAccountResponse(true));
+            await context.RespondAsync<TransferredAccountResponse>(new TransferredAccountResponse(true));
         }
     }
 }

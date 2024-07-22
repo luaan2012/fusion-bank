@@ -4,7 +4,7 @@ using MassTransit;
 
 namespace fusion.bank.deposit.services
 {
-    public class DepositedAccount(IDepositRepository depositRepository) : IConsumer<DepositedAccountProducer>
+    public class DepositedAccountResponse(IDepositRepository depositRepository) : IConsumer<DepositedAccountProducer>
     {
         public async Task Consume(ConsumeContext<DepositedAccountProducer> context)
         {
