@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-reposi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-services", "services\fusion-bank-transfer\fusion-bank-transfer-services\fusion-bank-transfer-services.csproj", "{03AEBE1A-2000-48C9-85C4-E0035F3CC454}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-api", "services\fusion-bank-transfer-api\fusion-bank-transfer-api.csproj", "{657D7B0C-B8A8-4981-92BC-4638DA308F71}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-api", "services\fusion-bank-transfer\fusion-bank-transfer-api\fusion-bank-transfer-api.csproj", "{657D7B0C-B8A8-4981-92BC-4638DA308F71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
