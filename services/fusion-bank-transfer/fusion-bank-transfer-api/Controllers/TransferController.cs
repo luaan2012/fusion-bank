@@ -20,7 +20,7 @@ namespace fusion.bank.transfer.api.Controllers
                 return Ok(transfer);
             }
 
-            var response = await requestClient.GetResponse<TransferredAccountResponse>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount));
+            var response = await requestClient.GetResponse<TransferredAccountResponse>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
 
             if(response.Message.Transferred)
             {

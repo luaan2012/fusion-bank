@@ -10,30 +10,34 @@ namespace fusion.bank.account.service
     {
         public async Task Consume(ConsumeContext<NewTransferAccountRequest> context)
         {
-            var account = context.Message.TransferType switch
+            var accountReceive = context.Message.TransferType switch
             {
                 TransferType.PIX => await accountRepository.ListAccountByKey(context.Message.KeyAccount),
                 TransferType.TED => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
                 TransferType.DOC => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
             };
 
-            if(account is null)
+            var accountOwner = await accountRepository.ListAccountByNumberAccount(context.Message.AccountOwner);
+
+            if (accountReceive is null || accountOwner is null)
             {
                 return;
             }
 
+            accountOwner.Debit(context.Message.Amount);
+
             //await Task.Delay(new Random().Next(5, 30) * 1000);
 
-            account.Credit(context.Message.Amount);
+            accountReceive.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<TransferredCentralResponse>(new NewTransferCentralRequest(context.Message.TransferType, account.Balance, context.Message.KeyAccount));
+            var response = await requestClient.GetResponse<TransferredCentralResponse>(new NewTransferCentralRequest(context.Message.TransferType, accountReceive.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
 
             if (!response.Message.Transferred)
             {
                 return;
             }
 
-            await accountRepository.UpdateAccount(account);
+            await accountRepository.UpdateAccount(accountReceive);
 
             await context.RespondAsync<TransferredAccountResponse>(new TransferredAccountResponse(true));
         }
