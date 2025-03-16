@@ -1,4 +1,5 @@
 ﻿using fusion.bank.account.domain.Interfaces;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
@@ -21,9 +22,9 @@ namespace fusion.bank.account.service
 
             account.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DepositedCentralResponse>(new NewDepositCentralRequest(context.Message.AccountId, context.Message.DepositId, context.Message.AccountNumber, account.Balance));
+            var response = await requestClient.GetResponse<DataContractMessage<DepositedCentralResponse>>(new NewDepositCentralRequest(context.Message.AccountId, context.Message.DepositId, context.Message.AccountNumber, account.Balance));
 
-            if (!response.Message.Deposited)
+            if (!response.Message.Success)
             {
                 return;
             }

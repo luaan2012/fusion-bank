@@ -1,4 +1,5 @@
 using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Middlewares;
 using fusion.bank.transfer.domain.Interfaces;
 using fusion.bank.transfer.repository;
 using fusion.bank.transfer.services;
@@ -31,7 +32,8 @@ builder.Services.AddMassTransit(busCfg =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>(); 
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

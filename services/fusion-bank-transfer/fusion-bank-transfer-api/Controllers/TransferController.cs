@@ -1,3 +1,4 @@
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.transfer.domain;
@@ -9,7 +10,7 @@ namespace fusion.bank.transfer.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class TransferController(ITransferRepository transferRepository, IRequestClient<NewTransferAccountRequest> requestClient) : ControllerBase
+    public class TransferController(ITransferRepository transferRepository, IRequestClient<NewTransferAccountRequest> requestClient) : MainController
     {
         [HttpPost("create-transfer")]
         public async Task<IActionResult> CreateTransfer(Transfer transfer)
@@ -20,17 +21,17 @@ namespace fusion.bank.transfer.api.Controllers
                 return Ok(transfer);
             }
 
-            var response = await requestClient.GetResponse<TransferredAccountResponse>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
 
-            if(response.Message.Transferred)
+            if(response.Message.Success)
             {
                 transfer.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
                 await transferRepository.SaveTransfer(transfer);
 
-                return Ok("Transferencia realizada com sucesso");
+                return CreateResponse(response.Message, "transfer was successful.");
             }
 
-            return BadRequest("Erro ao tentar realizar sua transferencia, tente novamente em segundos.");
+            return CreateResponse(response.Message);
         }
 
         [HttpGet("list-all-transfer")]

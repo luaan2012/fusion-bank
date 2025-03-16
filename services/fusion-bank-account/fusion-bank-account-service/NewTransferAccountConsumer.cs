@@ -1,12 +1,14 @@
 ﻿using fusion.bank.account.domain.Interfaces;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
+using fusion.bank.core.Model.Errors;
 using fusion.bank.transfer.domain.Enum;
 using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewTransferAccountConsumer(IAccountRepository accountRepository, IPublishEndpoint bus, IRequestClient<NewTransferCentralRequest> requestClient) : IConsumer<NewTransferAccountRequest>
+    public class NewTransferAccountConsumer(IAccountRepository accountRepository, IRequestClient<NewTransferCentralRequest> requestClient) : IConsumer<NewTransferAccountRequest>
     {
         public async Task Consume(ConsumeContext<NewTransferAccountRequest> context)
         {
@@ -21,6 +23,10 @@ namespace fusion.bank.account.service
 
             if (accountReceive is null || accountOwner is null)
             {
+                await context.RespondAsync(accountReceive is null
+                    ? new DataContractMessage<TransferredAccountResponse>().HandleError(new InexistentAccountReceiveError())
+                    : new DataContractMessage<TransferredAccountResponse>().HandleError(new InexistentAccountPayedError()));
+
                 return;
             }
 
@@ -30,16 +36,16 @@ namespace fusion.bank.account.service
 
             accountReceive.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<TransferredCentralResponse>(new NewTransferCentralRequest(context.Message.TransferType, accountReceive.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, accountReceive.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
 
-            if (!response.Message.Transferred)
+            if (!response.Message.Success)
             {
                 return;
             }
 
             await accountRepository.UpdateAccount(accountReceive);
 
-            await context.RespondAsync<TransferredAccountResponse>(new TransferredAccountResponse(true));
+            await context.RespondAsync(new DataContractMessage<TransferredAccountResponse>().HandleSuccess(new TransferredAccountResponse(true)));
         }
     }
 }

@@ -1,5 +1,6 @@
 using fusion.bank.account.domain.Interfaces;
 using fusion.bank.core.Enum;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
@@ -58,11 +59,11 @@ namespace fusion.bank.account.Controllers
                 return BadRequest("Account not found");
             }
 
-            var response = await requestClient.GetResponse<CreatedKeyAccountResponse>(new NewKeyAccountRequest(account.AccountId, keyAccount));
+            var response = await requestClient.GetResponse<DataContractMessage<CreatedKeyAccountResponse>>(new NewKeyAccountRequest(account.AccountId, keyAccount));
 
-            if(!response.Message.Created)
+            if(!response.Message.Success)
             {
-                return BadRequest("Error trying to create key");
+                return BadRequest(response.Message.Error);
             }
             
             await accountRepository.SaveKeyByAccount(id, keyAccount);

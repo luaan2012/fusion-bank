@@ -3,6 +3,7 @@ using fusion.bank.account.repository;
 using fusion.bank.account.service;
 using fusion.bank.account.Service;
 using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Middlewares;
 using MassTransit;
 using System.Text.Json.Serialization;
 
@@ -39,6 +40,8 @@ builder.Services.AddMassTransit(busCfg =>
 
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,7 +1,7 @@
 using fusion.bank.central.domain.Interfaces;
 using fusion.bank.central.repository;
 using fusion.bank.central.service;
-using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.Middlewares;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +33,8 @@ builder.Services.AddMassTransit(busCfg =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

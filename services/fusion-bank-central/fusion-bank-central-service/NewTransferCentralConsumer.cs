@@ -1,4 +1,5 @@
 ﻿using fusion.bank.central.domain.Interfaces;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.transfer.domain.Enum;
@@ -33,7 +34,7 @@ namespace fusion.bank.central.service
                 TransferType.TED => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
             };
 
-            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount);
+            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.keyAccount == context.Message.KeyAccount);
 
             if (accountUpdateReceive is null || accountUpdatePayer is null)
             {
@@ -52,7 +53,11 @@ namespace fusion.bank.central.service
 
             await bankRepository.UpdateBank(bankAccountPayer);
 
-            await context.RespondAsync(new TransferredCentralResponse(true));
+            await context.RespondAsync(new DataContractMessage<TransferredCentralResponse>
+            {
+                Data = new TransferredCentralResponse(true),
+                Success = true
+            });
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using fusion.bank.core.Messages.Requests;
+﻿using fusion.bank.core.Messages.DataContract;
+using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.transfer.domain.Interfaces;
 using MassTransit;
@@ -35,9 +36,9 @@ namespace fusion.bank.transfer.services
 
                 foreach (var schedule in schedules)
                 {
-                    var response = await requestClient.GetResponse<TransferredAccountResponse>(new NewTransferAccountRequest(schedule.TransferType, schedule.KeyAccount, schedule.Amount, schedule.AccountNumberOwner));
+                    var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(schedule.TransferType, schedule.KeyAccount, schedule.Amount, schedule.AccountNumberOwner));
 
-                    if (response.Message.Transferred)
+                    if (response.Message.Success)
                     {
                         schedule.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
                         await transferRepository.UpdateTransfer(schedule);

@@ -1,4 +1,5 @@
 using fusion.bank.core.Messages.Producers;
+using fusion.bank.core.Middlewares;
 using fusion.bank.deposit.domain.Interfaces;
 using fusion.bank.deposit.services;
 using fusion.deposit.deposit.repository;
@@ -29,6 +30,8 @@ builder.Services.AddMassTransit(busCfg =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

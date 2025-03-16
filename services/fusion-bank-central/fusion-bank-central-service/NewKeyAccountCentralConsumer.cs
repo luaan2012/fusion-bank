@@ -1,7 +1,7 @@
 ﻿using fusion.bank.central.domain.Interfaces;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
-using fusion.bank.transfer.domain.Enum;
 using MassTransit;
 
 namespace fusion.bank.central.service
@@ -32,7 +32,11 @@ namespace fusion.bank.central.service
 
             await bankRepository.UpdateBank(bankAccount);
 
-            await context.RespondAsync(new CreatedKeyAccountResponse(true));
+            await context.RespondAsync(new DataContractMessage<CreatedKeyAccountResponse>
+            {
+                Data = new CreatedKeyAccountResponse(true),
+                Success = true
+            });
         }
     }
 }

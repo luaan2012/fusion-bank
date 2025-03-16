@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/services/fusion-bank-central/fusion-bank-central-domain/Model/AccountBank.cs
