@@ -1,10 +1,10 @@
-﻿namespace fusion.bank.creditcard.domain.Enum
+﻿namespace fusion.bank.core.Enum
 {
     public enum CreditCardFlag
     {
         VISA,
         MASTERCARD,
-        ELO,
+        DISCOVER,
         HIPERCARD,
         AMERICANEXPRESS
     }

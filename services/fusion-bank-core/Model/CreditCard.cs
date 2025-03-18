@@ -1,6 +1,6 @@
-﻿using fusion.bank.creditcard.domain.Enum;
+﻿using fusion.bank.core.Enum;
 
-namespace fusion.bank.creditcard.domain.Models
+namespace fusion.bank.core.Model
 {
     public class CreditCard
     {

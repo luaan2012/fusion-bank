@@ -1,4 +1,4 @@
-﻿namespace fusion.bank.creditcard.domain.Enum
+﻿namespace fusion.bank.core.Enum
 {
     public enum CreditCardType
     {

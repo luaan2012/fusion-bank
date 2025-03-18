@@ -1,5 +1,6 @@
 ﻿using fusion.bank.transfer.domain.Enum;
 using MongoDB.Bson.Serialization.Attributes;
+using fusion.bank.core.Enum;
 
 namespace fusion.bank.transfer.domain
 {

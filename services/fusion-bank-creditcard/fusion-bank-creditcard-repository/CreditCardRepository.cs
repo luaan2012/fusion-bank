@@ -1,6 +1,7 @@
-﻿using fusion.bank.creditcard.domain.Interfaces;
-using fusion.bank.creditcard.domain.Models;
+﻿using fusion.bank.core.Model;
+using fusion.bank.creditcard.domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace fusion.bank.central.repository
@@ -25,7 +26,13 @@ namespace fusion.bank.central.repository
 
         public async Task<CreditCard> GetTriedCard(Guid accountId)
         {
-            return (await creditCardCollection.FindAsync<CreditCard>(d => d.AccountId == accountId)).FirstOrDefault();
+            return (await creditCardCollection.FindAsync(d => d.AccountId == accountId)).FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<CreditCard>> ListAllCreditCards()
+        {
+            var filter = new BsonDocument();
+            return (await creditCardCollection.FindAsync(filter)).ToList();
         }
     }
 }

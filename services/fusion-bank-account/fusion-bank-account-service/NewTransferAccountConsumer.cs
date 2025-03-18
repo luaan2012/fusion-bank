@@ -3,7 +3,7 @@ using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model.Errors;
-using fusion.bank.transfer.domain.Enum;
+using fusion.bank.core.Enum;
 using MassTransit;
 
 namespace fusion.bank.account.service

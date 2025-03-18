@@ -1,4 +1,4 @@
-﻿using fusion.bank.transfer.domain.Enum;
+﻿using fusion.bank.core.Enum;
 
 namespace fusion.bank.core.Messages.Requests
 {

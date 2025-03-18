@@ -11,4 +11,9 @@
     <ProjectReference Include="..\..\fusion-bank-core\fusion-bank-core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Enum\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

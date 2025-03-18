@@ -18,6 +18,7 @@ namespace fusion.bank.core.Model
         public decimal Balance { get; internal set; }
         public decimal TransferLimit { get; internal set; }
         public decimal SalaryPerMonth { get; private set; }
+        public List<CreditCard> CreditCards { get; set; }
         public AccountType AccountType { get; set; }
         public StatusAccount Status { get; set; }
 
