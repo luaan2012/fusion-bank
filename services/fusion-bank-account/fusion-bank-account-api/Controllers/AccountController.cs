@@ -12,7 +12,7 @@ namespace fusion.bank.account.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AccountController(IAccountRepository accountRepository, ILogger<AccountController> logger, IPublishEndpoint bus, IRequestClient<NewKeyAccountRequest> requestClient) : ControllerBase
+    public class AccountController(IAccountRepository accountRepository, ILogger<AccountController> logger, IPublishEndpoint bus, IRequestClient<NewKeyAccountRequest> requestClient) : MainController
     {
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount(string name, string lastName, decimal salaryPerMonth, AccountType accountType, string bankISBP, string bankName)
@@ -22,19 +22,23 @@ namespace fusion.bank.account.Controllers
 
             await accountRepository.SaveAccount(account);
 
-            await bus.Publish(new NewAccountProducer(account.AccountId, 
-                account.Name, account.LastName, account.FullName, account.AccountNumber, 
-                account.Balance, account.TransferLimit, account.SalaryPerMonth, 
+            await bus.Publish(new NewAccountProducer(account.AccountId,
+                account.Name, account.LastName, account.FullName, account.AccountNumber,
+                account.Balance, account.TransferLimit, account.SalaryPerMonth,
                 account.AccountType, account.BankISBP, account.KeyAccount
             ));
 
-            return Ok($"Obrigado por ser inscrever no {bankName}. Estamos analizando todas informações e te notificaremos em breve sobre o status de criação da sua conta.");
+            var response = new DataContractMessage<string> { Data = $"Obrigado por ser inscrever no {bankName}. Estamos analizando todas informações e te notificaremos em breve sobre o status de criação da sua conta.", Success = true };
+
+            return CreateResponse(response);
         }
 
         [HttpGet("list-account")]
         public async Task<IActionResult> ListAccount()
         {
-            return Ok(await accountRepository.ListAllAccount());
+            var response = new DataContractMessage<IEnumerable<Account>> { Data = await accountRepository.ListAllAccount(), Success = true };
+
+            return CreateResponse(response);
         }
 
         [HttpGet("list-account-by-id/id:guid")]

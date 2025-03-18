@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>fusion.bank.transfer.repository</RootNamespace>
+    <RootNamespace>fusion.bank.creditcard.services</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\fusion-bank-transfer-domain\fusion-bank-transfer-domain.csproj" />
+    <ProjectReference Include="..\fusion-bank-creditcard-domain\fusion-bank-creditcard-domain.csproj" />
   </ItemGroup>
 
 </Project>

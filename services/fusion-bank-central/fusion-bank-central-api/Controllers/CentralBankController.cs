@@ -6,7 +6,7 @@ namespace fusion.bank.central.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CentralBankController(IBankRepository bankRepository, ILogger<CentralBankController> logger) : ControllerBase
+    public class CentralBankController(IBankRepository bankRepository, ILogger<CentralBankController> logger) : MainController
     {
         [HttpPost("create-bank")]
         public async Task<IActionResult> CreateBank(string name, string city, string address, string state)

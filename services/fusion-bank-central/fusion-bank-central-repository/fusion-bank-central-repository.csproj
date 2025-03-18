@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\fusion-bank-central-domain\fusion-bank-central-domain.csproj" />
   </ItemGroup>
 

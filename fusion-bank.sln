@@ -49,6 +49,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-transfer-api", "services\fusion-bank-transfer\fusion-bank-transfer-api\fusion-bank-transfer-api.csproj", "{657D7B0C-B8A8-4981-92BC-4638DA308F71}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-creditcard", "fusion-bank-creditcard", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-services", "services\fusion-bank-creditCard\fusion-bank-creditcard-services\fusion-bank-creditcard-services.csproj", "{90F96753-FA91-4D69-8D64-D4FAAC32FA12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-repository", "services\fusion-bank-creditCard\fusion-bank-creditcard-repository\fusion-bank-creditcard-repository.csproj", "{B4EE15E2-7099-443D-AA54-69B990BEFE06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-api", "services\fusion-bank-creditCard\fusion-bank-creditcard-api\fusion-bank-creditcard-api.csproj", "{08BDD2C0-DC36-F90C-76D9-D24F3CA72713}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-domain", "services\fusion-bank-creditcard\fusion-bank-creditcard-domain\fusion-bank-creditcard-domain.csproj", "{5B2E4CBE-7225-E79D-1B61-4A361290E711}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +133,22 @@ Global
 		{657D7B0C-B8A8-4981-92BC-4638DA308F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{657D7B0C-B8A8-4981-92BC-4638DA308F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{657D7B0C-B8A8-4981-92BC-4638DA308F71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90F96753-FA91-4D69-8D64-D4FAAC32FA12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90F96753-FA91-4D69-8D64-D4FAAC32FA12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90F96753-FA91-4D69-8D64-D4FAAC32FA12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90F96753-FA91-4D69-8D64-D4FAAC32FA12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4EE15E2-7099-443D-AA54-69B990BEFE06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4EE15E2-7099-443D-AA54-69B990BEFE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4EE15E2-7099-443D-AA54-69B990BEFE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4EE15E2-7099-443D-AA54-69B990BEFE06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +176,11 @@ Global
 		{23D8D761-E26B-4B7C-8331-ADFD0F8D54EE} = {BE30CDFA-4BF6-4DEB-AF14-60173820A048}
 		{03AEBE1A-2000-48C9-85C4-E0035F3CC454} = {BE30CDFA-4BF6-4DEB-AF14-60173820A048}
 		{657D7B0C-B8A8-4981-92BC-4638DA308F71} = {BE30CDFA-4BF6-4DEB-AF14-60173820A048}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{90F96753-FA91-4D69-8D64-D4FAAC32FA12} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{B4EE15E2-7099-443D-AA54-69B990BEFE06} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5B2E4CBE-7225-E79D-1B61-4A361290E711} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F783F87-2A89-4167-8A02-8E7E9539D77B}

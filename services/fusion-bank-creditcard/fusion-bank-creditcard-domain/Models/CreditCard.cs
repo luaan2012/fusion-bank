@@ -1,0 +1,39 @@
+﻿using fusion.bank.creditcard.domain.Enum;
+
+namespace fusion.bank.creditcard.domain.Models
+{
+    public class CreditCard
+    {
+        public CreditCard()
+        {
+            
+        }
+
+        public CreditCard(Guid id, Guid accountId, string creditCardNumber, string creditCardName, string creditCardCode, DateTime creditCardValidity, CreditCardType creditCardType, CreditCardFlag creditCardFlag, bool creditCardTried, int creditCardTriedTimes, DateTime creditCardNextAttempt)
+        {
+            Id = id;
+            AccountId = accountId;
+            CreditCardNumber = creditCardNumber;
+            CreditCardName = creditCardName;
+            CreditCardCode = creditCardCode;
+            CreditCardValidity = creditCardValidity;
+            CreditCardType = creditCardType;
+            CreditCardFlag = creditCardFlag;
+            CreditCardTried = creditCardTried;
+            CreditCardTriedTimes = creditCardTriedTimes;
+            CreditCardNextAttempt = creditCardNextAttempt;
+        }
+
+        public Guid Id { get; set; }
+        public Guid AccountId { get; set; }
+        public string CreditCardNumber { get; set; }
+        public string CreditCardName { get; set; }
+        public string CreditCardCode { get; set; }
+        public DateTime CreditCardValidity { get; set; }
+        public CreditCardType CreditCardType { get; set; }
+        public CreditCardFlag CreditCardFlag { get; set; }
+        public bool CreditCardTried { get; set; }
+        public int CreditCardTriedTimes { get; set; }
+        public DateTime CreditCardNextAttempt { get; set; }
+    }
+}
