@@ -7,6 +7,7 @@ using fusion.bank.creditcard.domain.Interfaces;
 using fusion.bank.creditcard.domain.Models;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+
 namespace fusion.bank.creditCard.api.Controllers;
 
 [ApiController]
@@ -16,31 +17,39 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
     [HttpGet("request-creditcard/{accountId:Guid}")]
     public async Task<IActionResult> RequestCreditCard(Guid accountId)
     {
-        var creditCardTried = await creditCartRepository.GetTriedCard(accountId);
+        var creditCardExist = await creditCartRepository.GetTriedCard(accountId);
 
-        if (creditCardTried != null)
+        if (creditCardExist != null && creditCardExist.CreditCardTried)
         {
-            if (DateTime.UtcNow < creditCardTried.CreditCardNextAttempt)
+            if (DateTime.UtcNow < creditCardExist.CreditCardNextAttempt)
             {
-                return CreateResponse(new DataContractMessage<string>(), $"Ainda estamos analisando sua conta, tente novamente em {creditCardTried.CreditCardNextAttempt}");
+                return CreateResponse(new DataContractMessage<string>(), $"Ainda estamos analisando sua conta, tente novamente em {creditCardExist.CreditCardNextAttempt}");
             }
+
+            CheckTriedCard(creditCardExist);
         }
 
         var creditCardRequestResponse = await requestClient.GetResponse<DataContractMessage<CreditCardRequestResponse>>(new NewCreditCardRequest(accountId));
 
-        // Determina o tipo de cartão com base nos critérios
         var (cardType, success) = DetermineCreditCardType(
             creditCardRequestResponse.Message.Data.SalaryPerMonth,
             creditCardRequestResponse.Message.Data.AverageBudgetPerMonth,
             creditCardRequestResponse.Message.Data.AccountType
         );
 
-        if (!success) return new CreditCard();
+        if (!success)
+        {
+            return await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
+        }
 
         var creditCard = GetCreditCard(cardType);
 
-        if (creditCard is null) return creditCard;
+        if (creditCard is null)
+        {
+            return await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
+        }
 
+        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = true});
     }
 
     private (CreditCardType, bool) DetermineCreditCardType(decimal salaryPerMonth, decimal averageBudgetPerMonth, AccountType accountType)
@@ -91,7 +100,17 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
     {
         if (creditCard.CreditCardTriedTimes == 1)
         {
+            creditCard.CreditCardNextAttempt = DateTime.Now.AddMinutes(5);
+        }
 
+        if (creditCard.CreditCardTriedTimes == 2)
+        {
+            creditCard.CreditCardNextAttempt = DateTime.Now.AddMinutes(10);
+        }
+
+        if (creditCard.CreditCardTriedTimes == 3)
+        {
+            creditCard.CreditCardNextAttempt = DateTime.Now.AddMinutes(15);
         }
     }
 
@@ -105,5 +124,12 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
         };
     }
 
-}
+    private async Task<IActionResult> SaveTriedCard(Guid accountId, Guid cardExist)
+    {
+        var saveCreditCard = new CreditCard { CreditCardTriedTimes = 1, CreditCardNextAttempt = CalculateNextAttempt(1), AccountId = accountId, Id = cardExist == Guid.Empty ? Guid.NewGuid() : cardExist, CreditCardTried = true };
+
+        await creditCartRepository.SaveTriedCard(saveCreditCard);
+
+        return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel concender um cartao de credito para voce agora, tente novamente em {saveCreditCard.CreditCardNextAttempt}");
+    }
 }

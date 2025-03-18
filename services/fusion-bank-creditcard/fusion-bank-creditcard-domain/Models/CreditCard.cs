@@ -9,7 +9,7 @@ namespace fusion.bank.creditcard.domain.Models
             
         }
 
-        public CreditCard(Guid id, Guid accountId, string creditCardNumber, string creditCardName, string creditCardCode, DateTime creditCardValidity, CreditCardType creditCardType, CreditCardFlag creditCardFlag, bool creditCardTried, int creditCardTriedTimes, DateTime creditCardNextAttempt)
+        public CreditCard(Guid id, Guid accountId, string creditCardNumber, string creditCardName, string creditCardCode, DateTime creditCardValidity, CreditCardType creditCardType, CreditCardFlag creditCardFlag, bool creditCardTried, int creditCardTriedTimes, DateTime creditCardNextAttempt, decimal creditCardLimit)
         {
             Id = id;
             AccountId = accountId;
@@ -22,6 +22,7 @@ namespace fusion.bank.creditcard.domain.Models
             CreditCardTried = creditCardTried;
             CreditCardTriedTimes = creditCardTriedTimes;
             CreditCardNextAttempt = creditCardNextAttempt;
+            CreditCardLimit = creditCardLimit;
         }
 
         public Guid Id { get; set; }
@@ -29,6 +30,7 @@ namespace fusion.bank.creditcard.domain.Models
         public string CreditCardNumber { get; set; }
         public string CreditCardName { get; set; }
         public string CreditCardCode { get; set; }
+        public decimal CreditCardLimit { get; set; }
         public DateTime CreditCardValidity { get; set; }
         public CreditCardType CreditCardType { get; set; }
         public CreditCardFlag CreditCardFlag { get; set; }

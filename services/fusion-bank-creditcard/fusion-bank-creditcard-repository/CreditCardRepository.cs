@@ -18,10 +18,12 @@ namespace fusion.bank.central.repository
 
         public async Task SaveTriedCard(CreditCard creditCard)
         {
+            await creditCardCollection.DeleteOneAsync(d => d.AccountId == creditCard.AccountId);
+
             await creditCardCollection.InsertOneAsync(creditCard);
         }
 
-        public async Task<CreditCard> SaveTriedCard(Guid accountId)
+        public async Task<CreditCard> GetTriedCard(Guid accountId)
         {
             return (await creditCardCollection.FindAsync<CreditCard>(d => d.AccountId == accountId)).FirstOrDefault();
         }
