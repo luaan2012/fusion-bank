@@ -27,6 +27,8 @@ builder.Services.AddMassTransit(busCfg =>
     busCfg.AddConsumer<NewTransferAccountConsumer>();
     busCfg.AddConsumer<NewCreditCardccountConsumer>();
     busCfg.AddConsumer<NewCreditCardCreatedAccountConsumer>();
+    busCfg.AddConsumer<NewInvestmentRequestConsumer>();
+    busCfg.AddConsumer<NewInvestmentRequestPutConsumer>();
 
     busCfg.AddRequestClient<NewDepositCentralRequest>();
     busCfg.AddRequestClient<NewTransferCentralRequest>();

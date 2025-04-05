@@ -17,6 +17,12 @@ public class MainController : ControllerBase
             return message.Data is null ? NotFound(message) : Ok(message);
         }
 
+        if(message.Data is null && !string.IsNullOrEmpty(optionMessage))
+        {
+            var newMessage = new DataContractMessage<string>(optionMessage, false);
+            return BadRequest(newMessage);
+        }
+
         return BadRequest(message);
     }
 }

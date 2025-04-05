@@ -1,30 +1,24 @@
-using System.Text.Json.Serialization;
-using fusion.bank.central.repository;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Middlewares;
-using fusion.bank.creditcard.domain.Interfaces;
+using fusion.bank.investments.domain.Interfaces;
+using fusion.bank.investments.repository;
 using MassTransit;
-using fusion.bank.creditcard.services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); }); ;
+builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<ICreditCartRepository, CreditCardRepository>();
-
-builder.Services.AddScoped<IGenerateCreditCardService, GenerateCreditCardService>();
+builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 
 builder.Services.AddMassTransit(busCfg =>
 {
     busCfg.SetKebabCaseEndpointNameFormatter();
 
     busCfg.AddRequestClient<NewAccountRequestInformation>();
-    busCfg.AddRequestClient<NewCreditCardCreatedRequest>();
+    busCfg.AddRequestClient<NewInvestmentRequest>();
+    busCfg.AddRequestClient<NewAccountRequestPutAmount>();
 
     busCfg.UsingRabbitMq((ctx, cfg) =>
     {
@@ -33,7 +27,6 @@ builder.Services.AddMassTransit(busCfg =>
         cfg.ConfigureEndpoints(ctx);
     });
 });
-
 
 var app = builder.Build();
 

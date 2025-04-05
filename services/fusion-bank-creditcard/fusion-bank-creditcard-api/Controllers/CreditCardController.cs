@@ -13,7 +13,7 @@ namespace fusion.bank.creditCard.api.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class CentralBankController(ILogger<CentralBankController> logger, ICreditCartRepository creditCartRepository, 
-    IRequestClient<NewCreditCardRequest> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
+    IRequestClient<NewAccountRequestInformation> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
     IGenerateCreditCardService generateCreditCardService)  : MainController
 {
     [HttpGet("request-creditcard/{accountId:Guid}")]
@@ -31,7 +31,7 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
             CheckTriedCard(creditCardExist);
         }
 
-        var creditCardRequestResponse = await requestClient.GetResponse<DataContractMessage<CreditCardRequestResponse>>(new NewCreditCardRequest(accountId));
+        var creditCardRequestResponse = await requestClient.GetResponse<DataContractMessage<AccountInformationResponse>>(new NewAccountRequestInformation(accountId));
 
         if (!creditCardRequestResponse.Message.Success)
         {
@@ -56,19 +56,19 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
             return await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
         }
 
-        var creditCardCreated = await requestClientCreated.GetResponse<DataContractMessage<string>>(new NewCreditCardCreatedRequest { CreditCard = creditCard, AccountId = creditCard.AccountId});
-
-        if (!creditCardCreated.Message.Success)
-        {
-            return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel solicitar um cartao para voce agora, tente novamente mais tarde.");
-        }
-
         var generateInformations = await generateCreditCardService.GenerateCreditCard(creditCard.CreditCardFlag);
 
         creditCard.CreditCardNumber = generateInformations.CreditCardNumber;
         creditCard.CreditCardCode = generateInformations.CreditCardCode;
         creditCard.CreditCardValidity = DateTime.ParseExact(generateInformations.CreditCardValidity, "dd/MM/yyyy", null);
         creditCard.CreditCardName = creditCardRequestResponse.Message.Data.Name;
+
+        var creditCardCreated = await requestClientCreated.GetResponse<DataContractMessage<string>>(new NewCreditCardCreatedRequest { CreditCard = creditCard, AccountId = creditCard.AccountId});
+
+        if (!creditCardCreated.Message.Success)
+        {
+            return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel solicitar um cartao para voce agora, tente novamente mais tarde.");
+        }
 
         await creditCartRepository.SaveTriedCard(creditCard);
 
@@ -115,11 +115,11 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
     {
         var cardMappings = new Dictionary<CreditCardType, CreditCard>
             {
-                { CreditCardType.STANDARD, new CreditCard { CreditCardType = CreditCardType.STANDARD, CreditCardLimit = 500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardTried = true, CreditCardNextAttempt = DateTime.Now.AddMinutes(5) } },
-                { CreditCardType.GOLD, new CreditCard { CreditCardType = CreditCardType.GOLD, CreditCardLimit = 1500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5) } },
-                { CreditCardType.PLATINUM, new CreditCard { CreditCardType = CreditCardType.PLATINUM, CreditCardLimit = 3000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5) } },
-                { CreditCardType.BLACK, new CreditCard { CreditCardType = CreditCardType.BLACK, CreditCardLimit = 8000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5) } },
-                { CreditCardType.INFINITE, new CreditCard { CreditCardType = CreditCardType.INFINITE, CreditCardLimit = 20000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5) } }
+                { CreditCardType.STANDARD, new CreditCard { CreditCardType = CreditCardType.STANDARD, CreditCardLimit = 500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardTried = true, CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.GOLD, new CreditCard { CreditCardType = CreditCardType.GOLD, CreditCardLimit = 1500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.PLATINUM, new CreditCard { CreditCardType = CreditCardType.PLATINUM, CreditCardLimit = 3000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.BLACK, new CreditCard { CreditCardType = CreditCardType.BLACK, CreditCardLimit = 8000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.INFINITE, new CreditCard { CreditCardType = CreditCardType.INFINITE, CreditCardLimit = 20000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } }
             };
 
         return cardMappings.TryGetValue(creditCardType, out var creditCard) ? creditCard : null;

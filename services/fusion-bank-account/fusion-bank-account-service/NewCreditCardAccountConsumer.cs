@@ -7,19 +7,19 @@ using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewCreditCardccountConsumer(IAccountRepository accountRepository) : IConsumer<NewCreditCardRequest>
+    public class NewCreditCardccountConsumer(IAccountRepository accountRepository) : IConsumer<NewAccountRequestInformation>
     {
-        public async Task Consume(ConsumeContext<NewCreditCardRequest> context)
+        public async Task Consume(ConsumeContext<NewAccountRequestInformation> context)
         {
             var account = await accountRepository.ListAccountById(context.Message.id);
 
             if (account is null)
             {
-                await context.RespondAsync(new DataContractMessage<CreditCardRequestResponse>().HandleError(new InexistentAccountError()));
+                await context.RespondAsync(new DataContractMessage<AccountInformationResponse>().HandleError(new InexistentAccountError()));
                 return;
             }
 
-            var CreditCardRequestResponse = new CreditCardRequestResponse
+            var CreditCardRequestResponse = new AccountInformationResponse
             {
                 AccountNumber = account.AccountNumber,
                 AccountType = account.AccountType,
@@ -34,7 +34,7 @@ namespace fusion.bank.account.service
                 AverageBudgetPerMonth = new Random().Next(1600, 20000)
             };
 
-            await context.RespondAsync(new DataContractMessage<CreditCardRequestResponse>().HandleSuccess(CreditCardRequestResponse));
+            await context.RespondAsync(new DataContractMessage<AccountInformationResponse>().HandleSuccess(CreditCardRequestResponse));
         }
     }
 }

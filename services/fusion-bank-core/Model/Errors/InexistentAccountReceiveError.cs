@@ -10,4 +10,13 @@ namespace fusion.bank.core.Model.Errors
             LevelError = LevelError.LOW;
         }
     }
+
+    public class BalanceIsNotSufficient : ErrorMessage
+    {
+        public BalanceIsNotSufficient()
+        {
+            Message = "Amount request is less than balance of the account";
+            LevelError = LevelError.LOW;
+        }
+    }
 }

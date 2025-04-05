@@ -2,14 +2,14 @@
 
 namespace fusion.bank.core.Messages.Responses
 {
-    public class CreditCardRequestResponse
+    public class AccountInformationResponse
     {
-        public CreditCardRequestResponse()
+        public AccountInformationResponse()
         {
             
         }
 
-        public CreditCardRequestResponse(string name, string lastName, string fullName, string bankName, string bankISBP, string keyAccount, string accountNumber, decimal balance, decimal salaryPerMonth, decimal averageBudgetPerMonth, AccountType accountType)
+        public AccountInformationResponse(string name, string lastName, string fullName, string bankName, string bankISBP, string keyAccount, string accountNumber, decimal balance, decimal salaryPerMonth, decimal averageBudgetPerMonth, AccountType accountType)
         {
             Name = name;
             LastName = lastName;

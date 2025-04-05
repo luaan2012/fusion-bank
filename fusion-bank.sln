@@ -59,6 +59,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-api"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-creditcard-domain", "services\fusion-bank-creditcard\fusion-bank-creditcard-domain\fusion-bank-creditcard-domain.csproj", "{5B2E4CBE-7225-E79D-1B61-4A361290E711}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-investments", "fusion-bank-investments", "{380287EE-F594-4680-B469-890B40D58A49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-api", "services\fusion-bank-investments\fusion-bank-investments-api\fusion-bank-investments-api.csproj", "{938F7597-EA59-4C09-A1E8-87CDBC08A15E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-domain", "services\fusion-bank-investments\fusion-bank-investments-domain\fusion-bank-investments-domain.csproj", "{BA3037FE-FD27-4C9D-879F-93355A2583F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-services", "services\fusion-bank-investments\fusion-bank-investments-services\fusion-bank-investments-services.csproj", "{A62968FF-D267-4B4F-9DE0-379B936DA6E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-repository", "services\fusion-bank-investments\fusion-bank-investments-repository\fusion-bank-investments-repository.csproj", "{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +159,22 @@ Global
 		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B2E4CBE-7225-E79D-1B61-4A361290E711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938F7597-EA59-4C09-A1E8-87CDBC08A15E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938F7597-EA59-4C09-A1E8-87CDBC08A15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938F7597-EA59-4C09-A1E8-87CDBC08A15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938F7597-EA59-4C09-A1E8-87CDBC08A15E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA3037FE-FD27-4C9D-879F-93355A2583F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA3037FE-FD27-4C9D-879F-93355A2583F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA3037FE-FD27-4C9D-879F-93355A2583F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA3037FE-FD27-4C9D-879F-93355A2583F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A62968FF-D267-4B4F-9DE0-379B936DA6E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A62968FF-D267-4B4F-9DE0-379B936DA6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A62968FF-D267-4B4F-9DE0-379B936DA6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A62968FF-D267-4B4F-9DE0-379B936DA6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,6 +207,11 @@ Global
 		{B4EE15E2-7099-443D-AA54-69B990BEFE06} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{08BDD2C0-DC36-F90C-76D9-D24F3CA72713} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{5B2E4CBE-7225-E79D-1B61-4A361290E711} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{380287EE-F594-4680-B469-890B40D58A49} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{938F7597-EA59-4C09-A1E8-87CDBC08A15E} = {380287EE-F594-4680-B469-890B40D58A49}
+		{BA3037FE-FD27-4C9D-879F-93355A2583F8} = {380287EE-F594-4680-B469-890B40D58A49}
+		{A62968FF-D267-4B4F-9DE0-379B936DA6E3} = {380287EE-F594-4680-B469-890B40D58A49}
+		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741} = {380287EE-F594-4680-B469-890B40D58A49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F783F87-2A89-4167-8A02-8E7E9539D77B}
