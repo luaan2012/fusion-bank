@@ -1,5 +1,7 @@
 ﻿using fusion.bank.account.domain.Interfaces;
+using fusion.bank.core.Enum;
 using fusion.bank.core.Model;
+using fusion.bank.core.Request;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -58,6 +60,27 @@ namespace fusion.bank.account.repository
             var filter = Builders<Account>.Filter.Eq("AccountId", account.AccountId);
 
             await accountCollection.ReplaceOneAsync(filter, account);
+        }
+
+        public async Task<Account> GetAccountPerTypeAndPassoword(LoginRequest loginRequest)
+        {
+            var filterBuilder = Builders<Account>.Filter;
+            FilterDefinition<Account> filter = loginRequest.LoginType switch
+            {
+                LoginType.EMAIL => filterBuilder.Eq(d => d.Email, loginRequest.LoginUser),
+                LoginType.CPFCNPJ => filterBuilder.Eq(d => d.Document, loginRequest.LoginUser),
+                LoginType.ACCOUNT => filterBuilder.Eq(d => d.AccountNumber, loginRequest.LoginUser),
+                _ => throw new ArgumentException("Tipo de login inválido.")
+            };
+
+            var account = (await accountCollection.FindAsync(filter)).FirstOrDefault();
+
+            if (account == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, account.Password))
+            {
+                return null;
+            }
+
+            return account;
         }
     }
 }

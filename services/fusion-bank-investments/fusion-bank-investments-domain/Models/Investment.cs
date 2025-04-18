@@ -10,7 +10,7 @@ namespace fusion.bank.investments.domain.Models
         public decimal Balance { get; set; }
         public decimal PaidOff => CalculatePaidOff();
         public decimal TotalBalance => TotalBalanceHandle();
-        public List<InvestmentEntry> Entries { get; set; } = new List<InvestmentEntry>();
+        public List<InvestmentEntry> Entries { get; set; } = [];
         public InvestmentType InvestmentType { get; set; }
         public DateTime DateInvestment { get; set; }
 

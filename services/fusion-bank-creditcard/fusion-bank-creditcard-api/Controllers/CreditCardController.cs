@@ -5,13 +5,14 @@ using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using fusion.bank.creditcard.domain.Interfaces;
 using MassTransit;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion.bank.creditCard.api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class CentralBankController(ILogger<CentralBankController> logger, ICreditCartRepository creditCartRepository, 
     IRequestClient<NewAccountRequestInformation> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
     IGenerateCreditCardService generateCreditCardService)  : MainController

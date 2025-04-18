@@ -2,6 +2,7 @@ using fusion.bank.account.domain.Interfaces;
 using fusion.bank.account.repository;
 using fusion.bank.account.service;
 using fusion.bank.account.Service;
+using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Middlewares;
 using MassTransit;
@@ -10,10 +11,10 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAuthenticationHandle(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); }); ;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -56,6 +57,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

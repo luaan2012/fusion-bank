@@ -5,15 +5,53 @@ using fusion.bank.core.Middlewares;
 using fusion.bank.creditcard.domain.Interfaces;
 using MassTransit;
 using fusion.bank.creditcard.services;
+using fusion.bank.core.Autentication;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddAuthenticationHandle(builder.Configuration);
+
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); }); ;
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo()
+    {
+        Title = "NerdStore Pedidos API",
+        Description = "Esta API faz parte da NerdStore.",
+        Contact = new OpenApiContact() { Name = "Luan Victor", Email = "oempreg.yes@outlook.com.br" },
+        License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Insira o token JWT desta maneira: Bearer {seu token}",
+        Name = "Authorization",
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+
+});
 
 builder.Services.AddScoped<ICreditCartRepository, CreditCardRepository>();
 
@@ -34,7 +72,6 @@ builder.Services.AddMassTransit(busCfg =>
     });
 });
 
-
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -46,6 +83,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

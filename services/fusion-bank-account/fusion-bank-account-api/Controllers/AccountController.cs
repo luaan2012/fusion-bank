@@ -1,10 +1,11 @@
 using fusion.bank.account.domain.Interfaces;
-using fusion.bank.core.Enum;
+using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
+using fusion.bank.core.Request;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +13,16 @@ namespace fusion.bank.account.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AccountController(IAccountRepository accountRepository, ILogger<AccountController> logger, IPublishEndpoint bus, IRequestClient<NewKeyAccountRequest> requestClient) : MainController
+    public class AccountController(IAccountRepository accountRepository, 
+        ILogger<AccountController> logger, IPublishEndpoint bus, 
+        IRequestClient<NewKeyAccountRequest> requestClient, 
+        IConfiguration configuration) : MainController
     {
         [HttpPost("create-account")]
-        public async Task<IActionResult> CreateAccount(string name, string lastName, decimal salaryPerMonth, AccountType accountType, string bankISBP, string bankName)
+        public async Task<IActionResult> CreateAccount(AccountRequest accountRequest)
         {
             var account = new Account();
-            account.CreateAccount(name, lastName, salaryPerMonth, accountType, bankISBP);
+            account.CreateAccount(accountRequest);
 
             await accountRepository.SaveAccount(account);
 
@@ -28,9 +32,26 @@ namespace fusion.bank.account.Controllers
                 account.AccountType, account.BankISBP, account.KeyAccount
             ));
 
-            var response = new DataContractMessage<string> { Data = $"Obrigado por ser inscrever no {bankName}. Estamos analizando todas informações e te notificaremos em breve sobre o status de criação da sua conta.", Success = true };
+            var token = AutenticationService.GenerateJwtToken(account, configuration);
+
+            var response = new DataContractMessage<string> { Data = token, Success = true };
 
             return CreateResponse(response);
+        }
+
+        [HttpPost("sign-account")]
+        public async Task<IActionResult> SignAccount(LoginRequest loginRequest)
+        {
+            var account = await accountRepository.GetAccountPerTypeAndPassoword(loginRequest);
+
+            if(account is null)
+            {
+                return CreateResponse(new DataContractMessage<string>(), $"Usuario ou senha inválidos, tente novamente.");
+            }
+
+            var token = AutenticationService.GenerateJwtToken(account, configuration);
+
+            return CreateResponse(new DataContractMessage<string> { Data = token, Success = true });
         }
 
         [HttpGet("list-account")]

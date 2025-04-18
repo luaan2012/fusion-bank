@@ -1,5 +1,7 @@
-﻿using fusion.bank.core.Enum;
+﻿using System.Reflection.Metadata;
+using fusion.bank.core.Enum;
 using fusion.bank.core.Helpers;
+using fusion.bank.core.Request;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace fusion.bank.core.Model
@@ -21,18 +23,26 @@ namespace fusion.bank.core.Model
         public List<CreditCard> CreditCards { get; set; }
         public AccountType AccountType { get; set; }
         public StatusAccount Status { get; set; }
+        public DocumentType DocumentType { get; set; }
+        public string Document { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
 
-        public void CreateAccount(string name, string lastName, decimal salaryPerMonth, AccountType accountType, string bankISBP)
+        public void CreateAccount(AccountRequest accountRequest)
         {
             AccountId = Guid.NewGuid();
-            Name = name;
-            LastName = lastName;
-            FullName = $"{name} {lastName}";
-            SalaryPerMonth = salaryPerMonth;
+            Name = accountRequest.Name;
+            LastName = accountRequest.LastName;
+            FullName = $"{accountRequest.Name} {accountRequest.LastName}";
+            SalaryPerMonth = accountRequest.SalaryPerMonth;
             AccountNumber = RandomHelper.GenerateRandomNumbers(8);
             Status = StatusAccount.Pendent;
-            AccountType = accountType;
-            BankISBP = bankISBP;
+            AccountType = accountRequest.AccountType;
+            BankISBP = accountRequest.BankISBP;
+            DocumentType = accountRequest.DocumentType;
+            Document = accountRequest.Document;
+            Email = accountRequest.Email;
+            Password = BCrypt.Net.BCrypt.HashPassword(accountRequest.Password);
 
             GetLimitAccount();
         }
