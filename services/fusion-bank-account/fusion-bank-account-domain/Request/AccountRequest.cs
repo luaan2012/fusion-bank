@@ -1,6 +1,6 @@
 ﻿using fusion.bank.core.Enum;
 
-namespace fusion.bank.core.Request
+namespace fusion.bank.account.domain.Request
 {
     public class AccountRequest
     {

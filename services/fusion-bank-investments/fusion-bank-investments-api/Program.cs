@@ -1,32 +1,21 @@
-using fusion.bank.core.Messages.Requests;
+using System.Text.Json.Serialization;
+using fusion.bank.core.Autentication;
+using fusion.bank.core.Configuration;
 using fusion.bank.core.Middlewares;
-using fusion.bank.investments.domain.Interfaces;
-using fusion.bank.investments.repository;
-using MassTransit;
+using fusion.bank.creditcard.api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddAuthenticationHandle(builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
+builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddMassTransit(busCfg =>
-{
-    busCfg.SetKebabCaseEndpointNameFormatter();
+builder.Services.AddSwaggerConfig(builder.Configuration);
 
-    busCfg.AddRequestClient<NewAccountRequestInformation>();
-    busCfg.AddRequestClient<NewInvestmentRequest>();
-    busCfg.AddRequestClient<NewAccountRequestPutAmount>();
+builder.Services.AddDependencyInjection();
 
-    busCfg.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(new Uri(builder.Configuration.GetConnectionString("RabbitMQ")));
+builder.Services.AddMassTransitConfig(builder.Configuration);
 
-        cfg.ConfigureEndpoints(ctx);
-    });
-});
 
 var app = builder.Build();
 

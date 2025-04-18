@@ -1,7 +1,8 @@
 ﻿using fusion.bank.core.Helpers;
+using fusion.bank.deposit.domain.Requests;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace fusion.bank.deposit.domain
+namespace fusion.bank.deposit.domain.Models
 {
     public class Deposit
     {
@@ -17,15 +18,15 @@ namespace fusion.bank.deposit.domain
         public bool Debited { get; set; }
         public bool Active { get; set; }
 
-        public void GenerateCode(Guid accountId, string bankSwiftCode, decimal amount, string accountNumber)
+        public void GenerateCode(BilletRequest billetRequest)
         {
             CodeGenerate = RandomHelper.GenerateRandomNumbers(48);
             DateExpiration = DateTime.Now.AddDays(3);
             Active = true;
-            BankSwiftCode = bankSwiftCode;
-            Amount = amount;
-            AccountId = accountId;
-            AccountNumber = accountNumber;
+            BankSwiftCode = billetRequest.SwiftCode;
+            Amount = billetRequest.Amount;
+            AccountId = billetRequest.AccountId;
+            AccountNumber = billetRequest.AccountNumber;
         }
         public void DebitedTrue()
         {

@@ -1,4 +1,6 @@
-﻿namespace fusion.bank.deposit.domain.Interfaces
+﻿using fusion.bank.deposit.domain.Models;
+
+namespace fusion.bank.deposit.domain.Interfaces
 {
     public interface IDepositRepository
     {

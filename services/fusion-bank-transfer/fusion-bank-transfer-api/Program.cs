@@ -1,34 +1,21 @@
-using fusion.bank.core.Messages.Requests;
+using System.Text.Json.Serialization;
+using fusion.bank.central.api.Configuration;
+using fusion.bank.core.Autentication;
+using fusion.bank.core.Configuration;
 using fusion.bank.core.Middlewares;
-using fusion.bank.transfer.domain.Interfaces;
-using fusion.bank.transfer.repository;
-using fusion.bank.transfer.services;
-using MassTransit;
+using fusion.bank.transfer.api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddAuthenticationHandle(builder.Configuration);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ITransferRepository, TransferRepository>();
-builder.Services.AddHostedService<TransferBackground>();
+builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddMassTransit(busCfg =>
-{
-    busCfg.SetKebabCaseEndpointNameFormatter();
+builder.Services.AddSwaggerConfig(builder.Configuration);
 
-    busCfg.AddRequestClient<NewTransferAccountRequest>();
+builder.Services.AddDependencyInjection();
 
-    busCfg.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(new Uri(builder.Configuration.GetConnectionString("RabbitMQ")));
-
-        cfg.ConfigureEndpoints(ctx);
-    });
-});
+builder.Services.AddMassTransitConfig(builder.Configuration);
 
 var app = builder.Build();
 

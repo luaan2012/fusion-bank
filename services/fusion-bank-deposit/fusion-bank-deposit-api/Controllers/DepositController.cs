@@ -1,6 +1,7 @@
 using fusion.bank.core.Messages.Producers;
-using fusion.bank.deposit.domain;
 using fusion.bank.deposit.domain.Interfaces;
+using fusion.bank.deposit.domain.Models;
+using fusion.bank.deposit.domain.Requests;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,10 @@ public class DepositController(IDepositRepository depositRepository, ILogger<Dep
 {
    
     [HttpPost("generate-billet")]
-    public async Task<IActionResult> GenerateBillet(Guid accountId, string swiftCode, decimal amount, string accountNumber)
+    public async Task<IActionResult> GenerateBillet(BilletRequest billetRequest)
     {
         var deposit = new Deposit();
-        deposit.GenerateCode(accountId, swiftCode, amount, accountNumber);
+        deposit.GenerateCode(billetRequest);
 
         await depositRepository.SaveDeposit(deposit);
 

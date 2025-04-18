@@ -1,7 +1,7 @@
 ﻿using fusion.bank.deposit.domain.Interfaces;
-using fusion.bank.deposit.domain;
 using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
+using fusion.bank.deposit.domain.Models;
 
 namespace fusion.deposit.deposit.repository
 {

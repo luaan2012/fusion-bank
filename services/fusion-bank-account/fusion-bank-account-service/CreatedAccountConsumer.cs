@@ -3,7 +3,7 @@ using fusion.bank.core.Enum;
 using fusion.bank.core.Messages.Producers;
 using MassTransit;
 
-namespace fusion.bank.account.Service
+namespace fusion.bank.account.service
 {
     public class CreatedAccountConsumer(IAccountRepository accountRepository) : IConsumer<CreatedAccountProducer>
     {

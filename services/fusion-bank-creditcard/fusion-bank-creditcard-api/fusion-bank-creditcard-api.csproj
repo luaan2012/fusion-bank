@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\fusion-bank-creditcard-domain\fusion-bank-creditcard-domain.csproj" />
     <ProjectReference Include="..\fusion-bank-creditcard-repository\fusion-bank-creditcard-repository.csproj" />
     <ProjectReference Include="..\fusion-bank-creditcard-services\fusion-bank-creditcard-services.csproj" />

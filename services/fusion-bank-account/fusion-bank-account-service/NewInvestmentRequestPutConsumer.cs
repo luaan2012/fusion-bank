@@ -5,7 +5,7 @@ using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model.Errors;
 using MassTransit;
 
-namespace fusion.bank.account.Service
+namespace fusion.bank.account.service
 {
     public class NewInvestmentRequestPutConsumer(IAccountRepository accountRepository) : IConsumer<NewAccountRequestPutAmount>
     {

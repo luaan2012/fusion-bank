@@ -1,54 +1,25 @@
-using fusion.bank.account.domain.Interfaces;
-using fusion.bank.account.repository;
-using fusion.bank.account.service;
-using fusion.bank.account.Service;
-using fusion.bank.core.Autentication;
-using fusion.bank.core.Messages.Requests;
-using fusion.bank.core.Middlewares;
-using MassTransit;
 using System.Text.Json.Serialization;
+using fusion.bank.account.api.Configuration;
+using fusion.bank.core.Autentication;
+using fusion.bank.core.Configuration;
+using fusion.bank.core.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddAuthenticationHandle(builder.Configuration);
 
-builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); }); ;
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddSwaggerGen();
+builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddSwaggerConfig(builder.Configuration);
 
-builder.Services.AddMassTransit(busCfg =>
-{
-    busCfg.SetKebabCaseEndpointNameFormatter();
+builder.Services.AddDependencyInjection();
 
-    busCfg.AddConsumer<CreatedAccountConsumer>();
-    busCfg.AddConsumer<NewDepositAccountConsumer>();
-    busCfg.AddConsumer<NewTransferAccountConsumer>();
-    busCfg.AddConsumer<NewCreditCardccountConsumer>();
-    busCfg.AddConsumer<NewCreditCardCreatedAccountConsumer>();
-    busCfg.AddConsumer<NewInvestmentRequestConsumer>();
-    busCfg.AddConsumer<NewInvestmentRequestPutConsumer>();
-
-    busCfg.AddRequestClient<NewDepositCentralRequest>();
-    busCfg.AddRequestClient<NewTransferCentralRequest>();
-    busCfg.AddRequestClient<NewKeyAccountRequest>();
-
-    busCfg.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(new Uri(builder.Configuration.GetConnectionString("RabbitMQ")));
-
-        cfg.ConfigureEndpoints(ctx);
-    });
-});
-
+builder.Services.AddMassTransitConfig(builder.Configuration);
 
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

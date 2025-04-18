@@ -1,4 +1,5 @@
-﻿using fusion.bank.core.Helpers;
+﻿using fusion.bank.central.Request;
+using fusion.bank.core.Helpers;
 using fusion.bank.core.Messages.Producers;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -17,13 +18,13 @@ namespace fusion.bank.central.domain.Model
         public string SwiftCode { get; internal set; }
         public List<NewAccountProducer> Accounts { get; internal set; }
         
-        public void CreateBank(string name, string city, string address, string state)
+        public void CreateBank(BankRequest bankRequest)
         {
-            Name = name;
+            Name = bankRequest.Name;
             NameNormalized = Name.Replace(" ", "").Normalize().ToUpper();
-            Address = address;
-            City = city;
-            State = state;  
+            Address = bankRequest.Address;
+            City = bankRequest.City;
+            State = bankRequest.State;  
             Accounts = [];
 
             CreateSwiftCode();

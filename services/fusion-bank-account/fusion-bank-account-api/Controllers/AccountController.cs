@@ -1,11 +1,11 @@
 using fusion.bank.account.domain.Interfaces;
+using fusion.bank.account.domain.Request;
 using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
-using fusion.bank.core.Request;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +22,8 @@ namespace fusion.bank.account.Controllers
         public async Task<IActionResult> CreateAccount(AccountRequest accountRequest)
         {
             var account = new Account();
-            account.CreateAccount(accountRequest);
+            account.CreateAccount(account.Name, account.LastName, account.AccountType, account.BankISBP, 
+                account.DocumentType, account.Document, account.Email, account.Password, account.SalaryPerMonth);
 
             await accountRepository.SaveAccount(account);
 
