@@ -1,7 +1,7 @@
 ﻿using fusion.bank.account.domain.Interfaces;
+using fusion.bank.account.domain.Request;
 using fusion.bank.core.Enum;
 using fusion.bank.core.Model;
-using fusion.bank.core.Request;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -30,9 +30,76 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.AccountNumber == accountNumber)).FirstOrDefault();
         }
 
-        public async Task<Account> ListAccountByKey(string keyAccount)
+        public async Task<Account> ListAccountByKey(Guid accountId, string keyAccount)
         {
-            return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
+            return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount && d.AccountId == accountId)).FirstOrDefault();
+        }
+
+        public async Task<Account> EditAccountByKey(string keyAccount, AccountEditRequest accountEditRequest)
+        {
+            var filter = Builders<Account>.Filter.Eq(x => x.KeyAccount, keyAccount);
+
+            var account = (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
+
+            if(account == null) return null;
+
+            var updateDefinitions = new List<UpdateDefinition<Account>>();
+
+            var properties = typeof(AccountEditRequest).GetProperties();
+
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(accountEditRequest);
+                if (value != null)
+                {
+                    updateDefinitions.Add(Builders<Account>.Update.Set(prop.Name, value));
+                }
+            }
+
+            if(updateDefinitions.Count <= 0) return null;
+
+            var update = Builders<Account>.Update.Combine(updateDefinitions);
+
+            return await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+        }
+
+        public async Task<Account> DeleteKeyAccount(Guid accountId)
+        {
+            var filter = Builders<Account>.Filter.Eq(x => x.AccountId, accountId);
+
+            var account = (await accountCollection.FindAsync(d => d.AccountId == accountId)).FirstOrDefault();
+
+            if (account == null) return null;
+
+            var update = Builders<Account>.Update.Set(d => d.KeyAccount, null);
+
+            return await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+        }
+
+        public async Task<Account> EditKeyAccount(Guid accountId, string keyAccount)
+        {
+            var filter = Builders<Account>.Filter.Eq(x => x.AccountId, accountId);
+
+            var account = (await accountCollection.FindAsync(d => d.AccountId == accountId)).FirstOrDefault();
+
+            if (account == null) return null;
+
+            var update = Builders<Account>.Update.Set(d => d.KeyAccount, keyAccount);
+
+            return await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+        }
+
+        public async Task<bool> DeleteAccount(Guid accountId)
+        {
+            var filter = Builders<Account>.Filter.Eq(x => x.AccountId, accountId);
+
+            var account = (await accountCollection.FindAsync(d => d.AccountId == accountId)).FirstOrDefault();
+
+            if (account == null) return false;
+
+            var result = await accountCollection.DeleteOneAsync(d => d.AccountId == accountId);
+
+            return result.DeletedCount > 0;
         }
 
         public async Task<IEnumerable<Account>> ListAllAccount()
@@ -50,6 +117,14 @@ namespace fusion.bank.account.repository
         {
             var filter = Builders<Account>.Filter.Eq(d => d.AccountId, idAccount);
             var update = Builders<Account>.Update.Set(d => d.KeyAccount, keyAccount);
+
+            await accountCollection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task SetDarkMode(Guid idAccount, bool darkMode)
+        {
+            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, idAccount);
+            var update = Builders<Account>.Update.Set(d => d.DarkMode, darkMode);
 
             await accountCollection.UpdateOneAsync(filter, update);
         }

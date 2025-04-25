@@ -15,6 +15,7 @@ namespace fusion.bank.core.Model
         public string BankISBP { get; private set; }
         public string KeyAccount { get; private set; }
         public string AccountNumber { get; internal set; }
+        public string Agency { get; internal set; }
         public decimal Balance { get; internal set; }
         public decimal TransferLimit { get; internal set; }
         public decimal SalaryPerMonth { get; private set; }
@@ -25,6 +26,7 @@ namespace fusion.bank.core.Model
         public string Document { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public bool DarkMode { get; set; }
 
         public void CreateAccount(string name, string lastName, AccountType accountType, string BankIspb, DocumentType documentType, string document, string email, string password, decimal salary )
         {
@@ -34,6 +36,7 @@ namespace fusion.bank.core.Model
             FullName = $"{name} {lastName}";
             SalaryPerMonth = salary;
             AccountNumber = RandomHelper.GenerateRandomNumbers(8);
+            Agency = $"00{RandomHelper.GenerateRandomNumbers(2)}";
             Status = StatusAccount.Pendent;
             AccountType = accountType;
             BankISBP = BankIspb;

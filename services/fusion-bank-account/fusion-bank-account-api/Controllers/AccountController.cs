@@ -7,17 +7,20 @@ using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion.bank.account.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class AccountController(IAccountRepository accountRepository, 
         ILogger<AccountController> logger, IPublishEndpoint bus, 
         IRequestClient<NewKeyAccountRequest> requestClient, 
         IConfiguration configuration) : MainController
     {
+        [AllowAnonymous]
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount(AccountRequest accountRequest)
         {
@@ -28,7 +31,7 @@ namespace fusion.bank.account.Controllers
             await accountRepository.SaveAccount(account);
 
             await bus.Publish(new NewAccountProducer(account.AccountId,
-                account.Name, account.LastName, account.FullName, account.AccountNumber,
+                account.Name, account.LastName, account.FullName, account.AccountNumber, account.Agency,
                 account.Balance, account.TransferLimit, account.SalaryPerMonth,
                 account.AccountType, account.BankISBP, account.KeyAccount
             ));
@@ -40,6 +43,7 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(response);
         }
 
+        [AllowAnonymous]
         [HttpPost("sign-account")]
         public async Task<IActionResult> SignAccount(LoginRequest loginRequest)
         {
@@ -63,38 +67,68 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(response);
         }
 
-        [HttpGet("list-account-by-id/id:guid")]
-        public async Task<IActionResult> ListAccountById(Guid id)
+        [HttpGet("get-account-by-id/id")]
+        public async Task<IActionResult> GetAccountById(Guid id)
         {
-            return Ok(await accountRepository.ListAccountById(id));
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountById(id), Success = true });
         }
 
-        [HttpGet("list-account-by-key-account/key:string")]
-        public async Task<IActionResult> ListAccountById(string keyAccount)
+        [HttpGet("get-account-by-key-account")]
+        public async Task<IActionResult> GetAccountByKey(Guid accountId, string keyAccount)
         {
-            return Ok(await accountRepository.ListAccountByKey(keyAccount));
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(accountId, keyAccount), Success = true });
         }
 
-        [HttpPost("register-key-account/id:guid/key:string")]
+        [HttpPut("edit-account/key")]
+        public async Task<IActionResult> EditAccountByKey(string keyAccountt, AccountEditRequest accountEditRequest)
+        {
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.EditAccountByKey(keyAccountt, accountEditRequest), Success = true });
+        }
+
+        [HttpDelete("delete-account/accountId")]
+        public async Task<IActionResult> EditAccountByKey(Guid accountId)
+        {
+            return CreateResponse(new DataContractMessage<bool> { Data = await accountRepository.DeleteAccount(accountId), Success = true });
+        }
+
+        [HttpDelete("delete-key-account/accountId")]
+        public async Task<IActionResult> DeleteKeyAccount(Guid accountId)
+        {
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.DeleteKeyAccount(accountId), Success = true });
+        }
+
+        [HttpPut("edit-key-account/accountId")]
+        public async Task<IActionResult> EditKeyAccount(Guid accountId, string keyAccount)
+        {
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.EditKeyAccount(accountId, keyAccount), Success = true });
+        }
+
+        [HttpPut("set-dark-mode/accountId")]
+        public async Task<IActionResult> EditKeyAccount(Guid accountId, bool darkMode)
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = true });
+        }
+
+        [HttpPost("register-key-account/id:guid/{key:string}")]
         public async Task<IActionResult> ListAccountById(Guid id, string keyAccount)
         {
             var account = await accountRepository.ListAccountById(id);
 
             if(account is null)
             {
-                return BadRequest("Account not found");
+                return CreateResponse(new DataContractMessage<string> { Success = false}, "Account not found");
             }
 
             var response = await requestClient.GetResponse<DataContractMessage<CreatedKeyAccountResponse>>(new NewKeyAccountRequest(account.AccountId, keyAccount));
 
             if(!response.Message.Success)
             {
-                return BadRequest(response.Message.Error);
+                return CreateResponse(new DataContractMessage<string> { Success = false, Error = response.Message.Error });
             }
             
             await accountRepository.SaveKeyByAccount(id, keyAccount);
 
-            return Ok();
+            return CreateResponse(new DataContractMessage<string> { Success = true });
         }
 
     }
