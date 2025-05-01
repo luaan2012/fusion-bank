@@ -76,7 +76,7 @@ namespace fusion.bank.account.Controllers
         [HttpGet("get-account-by-key-account")]
         public async Task<IActionResult> GetAccountByKey(Guid accountId, string keyAccount)
         {
-            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(accountId, keyAccount), Success = true });
+            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(keyAccount), Success = true });
         }
 
         [HttpPut("edit-account/key")]

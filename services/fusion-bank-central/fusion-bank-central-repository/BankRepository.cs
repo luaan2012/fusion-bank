@@ -47,9 +47,16 @@ namespace fusion.bank.central.repository
             return await bankCollection.AsQueryable().ToListAsync();
         }
 
-        public async Task SaveBank(Bank account)
+        public async Task SaveBank(Bank bank)
         {
-            await bankCollection.InsertOneAsync(account);
+            await bankCollection.InsertOneAsync(bank);
+        }
+
+        public async Task UpdateBank(Bank bank)
+        {
+            await bankCollection.DeleteOneAsync(d => d.BankId == bank.BankId);
+
+            await bankCollection.InsertOneAsync(bank);
         }
 
         public async Task<Bank> UpdateBank(Guid bankId, BankEditRequest bankEditRequest)

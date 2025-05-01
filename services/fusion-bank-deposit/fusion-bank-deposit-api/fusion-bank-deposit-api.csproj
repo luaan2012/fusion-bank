@@ -7,9 +7,6 @@
     <RootNamespace>fusion.bank.deposit.api</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\fusion-bank-deposit-domain\fusion-bank-deposit-domain.csproj" />

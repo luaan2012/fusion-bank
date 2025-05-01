@@ -69,6 +69,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-investments-repository", "services\fusion-bank-investments\fusion-bank-investments-repository\fusion-bank-investments-repository.csproj", "{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fusion-bank-admin", "fusion-bank-admin", "{880998A7-30E7-4D11-8F39-7D0893DEA925}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-admin-api", "services\fusion-bank-admin\fusion-bank-admin-api\fusion-bank-admin-api.csproj", "{1F2863EC-6521-4C0A-9317-C5D8ABED81CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-admin-domain", "services\fusion-bank-admin\fusion-bank-admin-domain\fusion-bank-admin-domain.csproj", "{C30AA7FF-A00F-4673-B07C-658C4A013077}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-admin-services", "services\fusion-bank-admin\fusion-bank-admin-services\fusion-bank-admin-services.csproj", "{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusion-bank-admin-repository", "services\fusion-bank-admin\fusion-bank-admin-repository\fusion-bank-admin-repository.csproj", "{CA1C24C4-C7DB-470A-BE1A-98EB229EC571}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -175,6 +185,22 @@ Global
 		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F2863EC-6521-4C0A-9317-C5D8ABED81CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F2863EC-6521-4C0A-9317-C5D8ABED81CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F2863EC-6521-4C0A-9317-C5D8ABED81CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F2863EC-6521-4C0A-9317-C5D8ABED81CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C30AA7FF-A00F-4673-B07C-658C4A013077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30AA7FF-A00F-4673-B07C-658C4A013077}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30AA7FF-A00F-4673-B07C-658C4A013077}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30AA7FF-A00F-4673-B07C-658C4A013077}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA1C24C4-C7DB-470A-BE1A-98EB229EC571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA1C24C4-C7DB-470A-BE1A-98EB229EC571}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA1C24C4-C7DB-470A-BE1A-98EB229EC571}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA1C24C4-C7DB-470A-BE1A-98EB229EC571}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,6 +238,11 @@ Global
 		{BA3037FE-FD27-4C9D-879F-93355A2583F8} = {380287EE-F594-4680-B469-890B40D58A49}
 		{A62968FF-D267-4B4F-9DE0-379B936DA6E3} = {380287EE-F594-4680-B469-890B40D58A49}
 		{2AEEC5B8-242E-4AB5-A7C9-9C05CBCF2741} = {380287EE-F594-4680-B469-890B40D58A49}
+		{880998A7-30E7-4D11-8F39-7D0893DEA925} = {A09FD446-4A56-4782-A10F-71142A2E1A28}
+		{1F2863EC-6521-4C0A-9317-C5D8ABED81CC} = {880998A7-30E7-4D11-8F39-7D0893DEA925}
+		{C30AA7FF-A00F-4673-B07C-658C4A013077} = {880998A7-30E7-4D11-8F39-7D0893DEA925}
+		{6B3A1E90-6E42-4DAC-B9CA-9CE1D853D8AF} = {880998A7-30E7-4D11-8F39-7D0893DEA925}
+		{CA1C24C4-C7DB-470A-BE1A-98EB229EC571} = {880998A7-30E7-4D11-8F39-7D0893DEA925}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1F783F87-2A89-4167-8A02-8E7E9539D77B}

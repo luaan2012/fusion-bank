@@ -30,9 +30,9 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.AccountNumber == accountNumber)).FirstOrDefault();
         }
 
-        public async Task<Account> ListAccountByKey(Guid accountId, string keyAccount)
+        public async Task<Account> ListAccountByKey(string keyAccount)
         {
-            return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount && d.AccountId == accountId)).FirstOrDefault();
+            return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
         }
 
         public async Task<Account> EditAccountByKey(string keyAccount, AccountEditRequest accountEditRequest)

@@ -14,5 +14,6 @@ namespace fusion.bank.central.domain.Interfaces
         Task<Bank> ListAccountBankByAccountNumber(string accountNumber);
         Task<bool> DeleteBank(Guid bankId);
         Task<Bank> UpdateBank(Guid bankId, BankEditRequest bankEditRequest);
+        Task UpdateBank(Bank bank);
     }
 }

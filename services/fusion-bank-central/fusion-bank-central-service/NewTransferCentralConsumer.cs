@@ -29,12 +29,12 @@ namespace fusion.bank.central.service
 
             var accountUpdateReceive = context.Message.TransferType switch
             {
-                TransferType.PIX => bankAccountReceive.Accounts.FirstOrDefault(d => d.keyAccount == context.Message.KeyAccount),
+                TransferType.PIX => bankAccountReceive.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount),
                 TransferType.DOC => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
                 TransferType.TED => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
             };
 
-            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.keyAccount == context.Message.KeyAccount);
+            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount);
 
             if (accountUpdateReceive is null || accountUpdatePayer is null)
             {

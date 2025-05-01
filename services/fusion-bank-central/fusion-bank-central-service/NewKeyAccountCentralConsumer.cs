@@ -26,7 +26,7 @@ namespace fusion.bank.central.service
                 return;
             }
 
-            accountUpdate = accountUpdate with { keyAccount = context.Message.KeyAccount };
+            accountUpdate = accountUpdate with { KeyAccount = context.Message.KeyAccount };
 
             bankAccount.UpdateAccount(accountUpdate.AccountId, accountUpdate);
 

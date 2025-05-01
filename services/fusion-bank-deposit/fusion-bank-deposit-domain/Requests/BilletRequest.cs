@@ -5,6 +5,6 @@
         public Guid AccountId { get; set; }
         public string SwiftCode { get; set; }
         public decimal Amount { get; set; }
-        public decimal AccountNumber { get; set; }
+        public string AccountNumber { get; set; }
     }
 }
