@@ -1,13 +1,12 @@
 using fusion.bank.core;
 using fusion.bank.core.Enum;
+using fusion.bank.core.Interfaces;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using fusion.bank.creditcard.domain.Interfaces;
-using fusion.bank.creditcard.services.Interfaces;
 using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion.bank.creditCard.api.Controllers;

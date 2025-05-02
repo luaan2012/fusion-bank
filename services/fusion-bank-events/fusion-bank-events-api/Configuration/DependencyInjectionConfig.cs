@@ -1,4 +1,5 @@
-﻿using fusion.bank.events.domain.Interfaces;
+﻿using System.Text.Json.Serialization;
+using fusion.bank.events.domain.Interfaces;
 using fusion.bank.events.repository;
 
 namespace fusion.bank.events.api.Configuration
@@ -9,6 +10,10 @@ namespace fusion.bank.events.api.Configuration
         {
             services.AddScoped<IEventRepository, EventRepository>();
 
+            services.AddSignalR().AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }); ;
         }
     }
 }

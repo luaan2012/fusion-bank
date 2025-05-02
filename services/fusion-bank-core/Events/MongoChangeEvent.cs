@@ -28,7 +28,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.LOGIN,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Service = ServiceType.ACCOUNT,
                 Details = "Você fez login com sucesso!"
             };
@@ -43,7 +43,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.ACCOUNT_EDITED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Service = ServiceType.ACCOUNT,
                 Details = "Sua conta foi atualizada com sucesso!"
             };
@@ -60,7 +60,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_DUE,
-                UserOwner = accountId,
+                AccountId = accountId,
                 CodeGenerate = GetLastFourChars(codeGenerate),
                 Service = ServiceType.DEPOSIT,
                 Details = "Atenção: um boleto no seu nome está vencido e pode gerar juros. Regularize agora!"
@@ -79,7 +79,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_WILL_EXPIRE,
-                UserOwner = accountId,
+                AccountId = accountId,
                 CodeGenerate = codeLastFour,
                 Service = ServiceType.DEPOSIT,
                 Details = $"Um boleto com número final {codeLastFour} vence em breve. Pague antes do vencimento!"
@@ -97,7 +97,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_GENERATED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 CodeGenerate = codeGenerate,
                 Service = ServiceType.DEPOSIT,
                 Details = $"Um novo boleto com número {codeGenerate} foi gerado em seu nome."
@@ -113,7 +113,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_REQUESTED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Service = ServiceType.CREDITCARD,
                 Details = "Sua solicitação de cartão de crédito foi enviada com sucesso!"
             };
@@ -128,7 +128,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_FAILED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Service = ServiceType.CREDITCARD,
                 Details = $"Nesse momento, nao conseguimos fornecer um cartao para voce. Mas nao desanima, tente novamente em {date}!"
             };
@@ -146,7 +146,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.INVESTMENT,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Amount = formattedAmount,
                 Investment = investmentType,
                 Service = ServiceType.INVESTMENT,
@@ -154,12 +154,12 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string UserOwnerReceive)
+        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string UserReceive)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
-            if (string.IsNullOrEmpty(UserOwnerReceive))
-                throw new ArgumentNullException(nameof(UserOwnerReceive));
+            if (string.IsNullOrEmpty(UserReceive))
+                throw new ArgumentNullException(nameof(UserReceive));
 
             var formattedAmount = FormatAmount(amount);
 
@@ -167,20 +167,20 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_MADE,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Amount = formattedAmount,
-                UserReceive = UserOwnerReceive,
+                UserReceive = UserReceive,
                 Service = ServiceType.TRANSFER,
-                Details = $"Transferência de {formattedAmount} para a conta {UserOwnerReceive} realizada com sucesso!"
+                Details = $"Transferência de {formattedAmount} para a conta {UserReceive} realizada com sucesso!"
             };
         }
 
-        public static EventMessage CreateTransferReceivedEvent(string accountId, decimal amount, string UserOwnerOwner)
+        public static EventMessage CreateTransferReceivedEvent(string accountId, decimal amount, string UserOwner)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
-            if (string.IsNullOrEmpty(UserOwnerOwner))
-                throw new ArgumentNullException(nameof(UserOwnerOwner));
+            if (string.IsNullOrEmpty(UserOwner))
+                throw new ArgumentNullException(nameof(UserOwner));
 
             var formattedAmount = FormatAmount(amount);
 
@@ -188,11 +188,11 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_RECEIVE,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Amount = formattedAmount,
-                UserReceive = UserOwnerOwner,
+                UserOwner = UserOwner,
                 Service = ServiceType.TRANSFER,
-                Details = $"Você recebeu uma transferência de {formattedAmount} enviada por {UserOwnerOwner}."
+                Details = $"Você recebeu uma transferência de {formattedAmount} enviada por {UserOwner}."
             };
         }
 
@@ -205,7 +205,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.ACCOUNT_CREATED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Service = ServiceType.ACCOUNT,
                 Details = "Bem-vindo! Sua conta foi criada e está pronta para uso."
             };
@@ -223,7 +223,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_SCHEDULED,
-                UserReceive = accountId,
+                AccountId = accountId,
                 Amount = formattedAmount,
                 DateSchedule = dateSchedule,
                 Service = ServiceType.TRANSFER,
@@ -242,7 +242,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_CREATED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 KeyAccount = keyAccount,
                 Service = ServiceType.ACCOUNT,
                 Details = $"A chave {keyAccount} foi registrada com sucesso. Suas transferências serão direcionadas para sua conta."
@@ -260,7 +260,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_DELETED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 KeyAccount = keyAccount,
                 Service = ServiceType.ACCOUNT,
                 Details = $"A chave {keyAccount} foi deletada com sucesso."
@@ -278,7 +278,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_EDITED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 KeyAccount = keyAccountOld,
                 Service = ServiceType.ACCOUNT,
                 Details = $"A chave {keyAccountOld} foi alterada para {keyAccountNew} com sucesso."
@@ -300,7 +300,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_RESPONSED,
-                UserOwner = accountId,
+                AccountId = accountId,
                 CreditCardType = creditCardType,
                 CreditCardNumber = cardLastFour,
                 CreditCardLimit = formattedLimit,
@@ -319,7 +319,7 @@ namespace fusion.bank.core
             {
                 Date = DateTime.UtcNow,
                 Action = NotificationType.DEPOSIT,
-                UserOwner = accountId,
+                AccountId = accountId,
                 Amount = formattedAmount,
                 Service = ServiceType.DEPOSIT,
                 Details = $"Depósito de {formattedAmount} realizado com sucesso em sua conta. Entre 1 a 30 min o valor será creditado."

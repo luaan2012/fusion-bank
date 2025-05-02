@@ -1,7 +1,7 @@
 ﻿using System.Threading.Channels;
-using fusion.bank.creditcard.services.Interfaces;
+using fusion.bank.core.Interfaces;
 
-namespace fusion.bank.creditcard.services
+namespace fusion.bank.core.services
 {
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {

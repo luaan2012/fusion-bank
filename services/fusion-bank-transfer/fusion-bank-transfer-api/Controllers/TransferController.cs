@@ -1,4 +1,5 @@
 using fusion.bank.core;
+using fusion.bank.core.Interfaces;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
@@ -11,8 +12,9 @@ namespace fusion.bank.transfer.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class TransferController(ITransferRepository transferRepository, 
-        IRequestClient<NewTransferAccountRequest> requestClient, IPublishEndpoint publishEndpoint) : MainController
+    public class TransferController(ITransferRepository transferRepository,
+        IRequestClient<NewTransferAccountRequest> requestClient, IPublishEndpoint publishEndpoint,
+        IBackgroundTaskQueue backgroundTaskQueue) : MainController
     {
         [HttpPost("create-transfer")]
         public async Task<IActionResult> CreateTransfer(Transfer transfer)
@@ -26,9 +28,38 @@ namespace fusion.bank.transfer.api.Controllers
                 return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false });
             }
 
+            if (transfer is { TransferType: core.Enum.TransferType.DOC } or { TransferType: core.Enum.TransferType.TED })
+            {
+                await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
+                {
+                    await Task.Delay(Random.Shared.Next(10, 60));
+
+                    await HandleTransfer(transfer);
+                });
+
+                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false }, "Transferencia enviada com sucesso.");
+            }
+
+            return await HandleTransfer(transfer);
+        }
+
+        [HttpGet("list-all-transfer")]
+        public async Task<IActionResult> ListAllTransfer()
+        {
+            return Ok(await transferRepository.ListAllTransfers());
+        }
+
+        [HttpGet("list-transfer-by-id/id:guid")]
+        public async Task<IActionResult> ListTransferById(Guid id)
+        {
+            return Ok(await transferRepository.ListById(id));
+        }
+
+        private async Task<IActionResult> HandleTransfer(Transfer transfer)
+        {
             var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
 
-            if(response.Message.Success)
+            if (response.Message.Success)
             {
                 transfer.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
 
@@ -42,18 +73,6 @@ namespace fusion.bank.transfer.api.Controllers
             }
 
             return CreateResponse(response.Message);
-        }
-
-        [HttpGet("list-all-transfer")]
-        public async Task<IActionResult> ListAllTransfer()
-        {
-            return Ok(await transferRepository.ListAllTransfers());
-        }
-
-        [HttpGet("list-transfer-by-id/id:guid")]
-        public async Task<IActionResult> ListTransferById(Guid id)
-        {
-            return Ok(await transferRepository.ListById(id));
         }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using fusion.bank.central.repository;
+using fusion.bank.core.Interfaces;
+using fusion.bank.core.services;
 using fusion.bank.creditcard.domain.Interfaces;
 using fusion.bank.creditcard.services;
-using fusion.bank.creditcard.services.Interfaces;
 
 namespace fusion.bank.creditcard.api.Configuration
 {

@@ -2,14 +2,14 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace fusion.bank.creditcard.services
+namespace fusion.bank.transfer.services
 {
-    public class CreditCardProcessingService : BackgroundService
+    public class TransferProcessingService : BackgroundService
     {
         private readonly IBackgroundTaskQueue _taskQueue;
-        private readonly ILogger<CreditCardProcessingService> _logger;
+        private readonly ILogger<TransferProcessingService> _logger;
 
-        public CreditCardProcessingService(IBackgroundTaskQueue taskQueue, ILogger<CreditCardProcessingService> logger)
+        public TransferProcessingService(IBackgroundTaskQueue taskQueue, ILogger<TransferProcessingService> logger)
         {
             _taskQueue = taskQueue;
             _logger = logger;

@@ -1,4 +1,4 @@
-﻿namespace fusion.bank.creditcard.services.Interfaces
+﻿namespace fusion.bank.core.Interfaces
 {
     public interface IBackgroundTaskQueue
     {

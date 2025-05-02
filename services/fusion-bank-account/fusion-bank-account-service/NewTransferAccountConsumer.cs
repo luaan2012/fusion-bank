@@ -32,8 +32,6 @@ namespace fusion.bank.account.service
 
             accountOwner.Debit(context.Message.Amount);
 
-            //await Task.Delay(new Random().Next(5, 30) * 1000);
-
             accountReceive.Credit(context.Message.Amount);
 
             var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, accountOwner.AccountId, accountReceive.Balance, accountOwner.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
