@@ -14,7 +14,7 @@ namespace fusion.bank.creditCard.api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize]
+//[Authorize]
 public class CreditBankController(ILogger<CreditBankController> logger, ICreditCartRepository creditCartRepository,
     IRequestClient<NewAccountRequestInformation> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
     IPublishEndpoint publishEndpoint, IBackgroundTaskQueue backgroundTaskQueue,
@@ -47,7 +47,7 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
         await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
         {
             // Simular atraso de processamento (ex.: 5 segundos)
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
             var (cardType, success) = DetermineCreditCardType(
             creditCardRequestResponse.Message.Data.SalaryPerMonth,
@@ -83,6 +83,8 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
                 await publishEndpoint.Publish(GenerateEvent.CreateCreditCardFailedEvent(accountId.ToString(), creditCard.CreditCardNextAttempt));
                 return;
             }
+
+            await publishEndpoint.Publish(GenerateEvent.CreateCreditCardResponsedEvent(accountId.ToString(), creditCard.CreditCardType.ToString(), creditCard.CreditCardNumber, creditCard.CreditCardLimit));
 
             await creditCartRepository.SaveTriedCard(creditCard);
 
