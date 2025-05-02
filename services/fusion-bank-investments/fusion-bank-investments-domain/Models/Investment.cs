@@ -1,4 +1,6 @@
 ﻿using fusion.bank.core.Enum;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
 
 namespace fusion.bank.investments.domain.Models
 {
@@ -11,6 +13,8 @@ namespace fusion.bank.investments.domain.Models
         public decimal PaidOff => CalculatePaidOff();
         public decimal TotalBalance => TotalBalanceHandle();
         public List<InvestmentEntry> Entries { get; set; } = [];
+
+        [BsonRepresentation(BsonType.String)]
         public InvestmentType InvestmentType { get; set; }
         public DateTime DateInvestment { get; set; }
 

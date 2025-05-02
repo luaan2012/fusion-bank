@@ -13,7 +13,7 @@ namespace fusion.bank.transfer.repository
         {
             var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
             var dataBase = client.GetDatabase("fusion_db");
-            transferCollection = dataBase.GetCollection<Transfer>("transferCollection");
+            transferCollection = dataBase.GetCollection<Transfer>(configuration["CollectionName"]);
         }
 
         public async Task SaveTransfer(Transfer transfer)

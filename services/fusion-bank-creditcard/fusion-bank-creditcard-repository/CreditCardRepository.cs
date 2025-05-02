@@ -14,7 +14,7 @@ namespace fusion.bank.central.repository
         {
             var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
             var dataBase = client.GetDatabase("fusion_db");
-            creditCardCollection = dataBase.GetCollection<CreditCard>("creditCardCollection");
+            creditCardCollection = dataBase.GetCollection<CreditCard>(configuration["CollectionName"]);
         }
 
         public async Task SaveTriedCard(CreditCard creditCard)

@@ -13,7 +13,7 @@ namespace fusion.deposit.deposit.repository
         {
             var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
             var dataBase = client.GetDatabase("fusion_db");
-            depositCollection = dataBase.GetCollection<Deposit>("depositCollection");
+            depositCollection = dataBase.GetCollection<Deposit>(configuration["CollectionName"]);
         }
 
         public async Task<Deposit> GetDepositById(Guid id)

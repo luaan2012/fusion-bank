@@ -1,3 +1,4 @@
+using fusion.bank.core;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
@@ -13,6 +14,7 @@ namespace fusion_bank_investments_api.Controllers;
 public class InvestmentController(IRequestClient<NewAccountRequestInformation> requestClient, 
     IRequestClient<NewInvestmentRequest> requestInvestment,
     IRequestClient<NewAccountRequestPutAmount> requestInvestmentPut,
+    IPublishEndpoint publishEndpoint,
     IInvestmentRepository investmentRepository) : MainController
 {
     [HttpPost("create-invest")]
@@ -38,6 +40,8 @@ public class InvestmentController(IRequestClient<NewAccountRequestInformation> r
         }
 
         await HandleInvestment(investment);
+
+        await publishEndpoint.Publish(GenerateEvent.CreateInvestmentEvent(investment.AccountId.ToString(), investment.Amount, investment.InvestmenType.ToString()));
 
         return CreateResponse(new DataContractMessage<string>() { Success = true }, $"Parabens! Voce deu o primeiro passo para se tornar milionario.");
     }

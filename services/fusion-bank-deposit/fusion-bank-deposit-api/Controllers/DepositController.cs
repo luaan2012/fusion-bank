@@ -1,26 +1,34 @@
+using fusion.bank.core;
+using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
+using fusion.bank.core.Model;
 using fusion.bank.deposit.domain.Interfaces;
 using fusion.bank.deposit.domain.Models;
 using fusion.bank.deposit.domain.Requests;
 using MassTransit;
+using MassTransit.Transports;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion_bank_deposit_api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class DepositController(IDepositRepository depositRepository, ILogger<DepositController> logger, IPublishEndpoint bus) : ControllerBase
+public class DepositController(IDepositRepository depositRepository, 
+    ILogger<DepositController> logger, IPublishEndpoint bus) : MainController
 {
    
     [HttpPost("generate-billet")]
     public async Task<IActionResult> GenerateBillet(BilletRequest billetRequest)
     {
         var deposit = new Deposit();
+
         deposit.GenerateCode(billetRequest);
 
         await depositRepository.SaveDeposit(deposit);
 
-        return Ok(deposit);
+        await bus.Publish(GenerateEvent.CreateBilletGeneratedEvent(billetRequest.AccountId.ToString(), deposit.CodeGenerate));
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Data = deposit, Success = true});
     }
 
     [HttpGet("get-billet-by-id/id:guid")]
@@ -42,21 +50,24 @@ public class DepositController(IDepositRepository depositRepository, ILogger<Dep
 
         if(billet is null)
         {
-            return BadRequest("Boleto não encontrado");
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Nenhum boleto foi encontrado.");
         }
 
-        //if(billet.Debited)
-        //{
-        //    return BadRequest("Boleto já foi depositado.");
-        //}
+        if (billet.Debited)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto já foi depositado.");
 
-        //if(billet.DateExpiration < DateTime.Now)
-        //{
-        //    return BadRequest("Boleto expirado, tente novamente mais tarde.");
-        //}
+        }
 
-        bus.Publish(new NewDepositAccountProducer(billet.AccountId, billet.DepositId, billet.AccountNumber, billet.Amount));
+        if (billet.DateExpiration < DateTime.Now)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto expirado, tente novamente mais tarde.");
+        }
 
-        return Ok("Depositamos seu boleto. Entre 1 a 30 min seu dinheira cairá na sua conta.");
+        await bus.Publish(new NewDepositAccountProducer(billet.AccountId, billet.DepositId, billet.AccountNumber, billet.Amount));
+
+        await bus.Publish(GenerateEvent.CreateDepositEvent(billet.AccountId.ToString(), billet.Amount));
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Depositamos seu boleto. Entre 1 a 30 min seu dinheira cairá na sua conta.");
     }
 }

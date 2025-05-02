@@ -9,6 +9,7 @@ namespace fusion.bank.central.api.Configuration
         public static void AddDependencyInjection(this IServiceCollection services)
         {
             services.AddScoped<ITransferRepository, TransferRepository>();
+
             services.AddHostedService<TransferBackground>();
         }
     }

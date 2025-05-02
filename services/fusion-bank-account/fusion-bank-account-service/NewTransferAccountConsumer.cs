@@ -36,7 +36,7 @@ namespace fusion.bank.account.service
 
             accountReceive.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, accountReceive.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, accountOwner.AccountId, accountReceive.Balance, accountOwner.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
 
             if (!response.Message.Success)
             {
@@ -44,6 +44,8 @@ namespace fusion.bank.account.service
             }
 
             await accountRepository.UpdateAccount(accountReceive);
+
+            await accountRepository.UpdateAccount(accountOwner);
 
             await context.RespondAsync(new DataContractMessage<TransferredAccountResponse>().HandleSuccess(new TransferredAccountResponse(true)));
         }

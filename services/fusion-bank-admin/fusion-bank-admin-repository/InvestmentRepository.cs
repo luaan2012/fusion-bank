@@ -1,7 +1,4 @@
 ﻿using fusion.bank.admin.domain.Interfaces;
-using Microsoft.Extensions.Configuration;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace fusion.bank.admin.repository
 {

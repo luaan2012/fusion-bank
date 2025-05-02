@@ -34,16 +34,16 @@ namespace fusion.bank.central.service
                 TransferType.TED => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
             };
 
-            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount);
+            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);
 
             if (accountUpdateReceive is null || accountUpdatePayer is null)
             {
                 return;
             }
 
-            accountUpdateReceive = accountUpdateReceive with { Balance = context.Message.Amount };
+            accountUpdateReceive = accountUpdateReceive with { Balance = context.Message.AmountReceive };
 
-            accountUpdatePayer = accountUpdatePayer with { Balance = context.Message.Amount };
+            accountUpdatePayer = accountUpdatePayer with { Balance = context.Message.AmountOwner };
 
             bankAccountReceive.UpdateAccount(accountUpdateReceive.AccountId, accountUpdateReceive);
 

@@ -12,9 +12,9 @@ builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerial
 
 builder.Services.AddSwaggerConfig(builder.Configuration);
 
-builder.Services.AddDependencyInjection();
-
 builder.Services.AddMassTransitConfig(builder.Configuration);
+
+builder.Services.AddDependencyInjection();
 
 var app = builder.Build();
 

@@ -1,94 +1,117 @@
 ﻿using fusion.bank.admin.domain.Interfaces;
+using fusion.bank.admin.domain.Models;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace fusion.bank.admin.repository
 {
     public class BankRepository : IBankRepository
     {
-        //private readonly IMongoCollection<Bank> bankCollection;
+        private readonly IMongoCollection<BsonDocument> bankCollection;
 
-        //public BankRepository(IConfiguration configuration)
-        //{
-        //    var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
-        //    var dataBase = client.GetDatabase("fusion_db");
-        //    bankCollection = dataBase.GetCollection<Bank>("bankCollection");
-        //}
+        public BankRepository(IConfiguration configuration)
+        {
+            var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
+            var dataBase = client.GetDatabase("fusion_db");
+            bankCollection = dataBase.GetCollection<BsonDocument>("bankCollection");
+        }
 
-        //public async Task<Bank> ListBankByISPB(string id)
-        //{
-        //    return (await bankCollection.FindAsync(d => d.ISPB == id)).FirstOrDefault();
-        //}
+        public async Task<BankSummary> GetBankSummaryAsync()
+        {
+            // Pipeline para agregação
+            var pipeline = new[]
+            {
+                // Agrupar por banco para contar contas e somar saldos
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "$bankCode" },
+                    { "accountCount", new BsonDocument("$sum", 1) },
+                    { "totalBalance", new BsonDocument("$sum", "$balance") }
+                }),
+                // Agrupar novamente para obter totais gerais e detalhes por banco
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", null },
+                    { "totalAccounts", new BsonDocument("$sum", "$accountCount") },
+                    { "totalBalanceAllBanks", new BsonDocument("$sum", "$totalBalance") },
+                    { "bankDetails", new BsonDocument("$push", new BsonDocument
+                        {
+                            { "bankCode", "$_id" },
+                            { "accountCount", "$accountCount" },
+                            { "totalBalance", "$totalBalance" }
+                        })
+                    }
+                })
+            };
 
-        //public async Task<Bank> ListBankById(Guid id)
-        //{
-        //    return (await bankCollection.FindAsync(d => d.BankId == id)).FirstOrDefault();
-        //}
+            // Executar pipeline
+            var result = await bankCollection.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
 
-        //public async Task<Bank> ListAccountBankById(Guid id)
-        //{
-        //    return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountId == id))).FirstOrDefault();
-        //}
+            // Criar objeto de resumo
+            var summary = new BankSummary
+            {
+                TotalAccounts = result != null ? result["totalAccounts"].AsInt32 : 0,
+                TotalBalanceAllBanks = result != null ? result["totalBalanceAllBanks"].AsDouble : 0,
+                BankDetails = result != null && result["bankDetails"].IsBsonArray
+                    ? result["bankDetails"].AsBsonArray.Select(doc => new BankDetail
+                    {
+                        BankCode = doc["bankCode"].AsString,
+                        AccountCount = doc["accountCount"].AsInt32,
+                        TotalBalance = doc["totalBalance"].AsDouble
+                    }).ToList()
+                    : new List<BankDetail>()
+            };
 
-        //public async Task<Bank> ListAccountBankByKeyAccount(string keyAccount)
-        //{
-        //    return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.KeyAccount == keyAccount))).FirstOrDefault();
-        //}
+            return summary;
+        }
 
-        //public async Task<Bank> ListAccountBankByAccountNumber(string accountNumber)
-        //{
-        //    return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountNumber == accountNumber))).FirstOrDefault();
-        //}
+        public async Task<List<BankListItem>> GetBankListAsync()
+        {
+            var banks = await bankCollection
+                .Find(Builders<BsonDocument>.Filter.Empty)
+                .ToListAsync();
 
-        //public async Task<IEnumerable<Bank>> ListAllBank()
-        //{
-        //    return await bankCollection.AsQueryable().ToListAsync();
-        //}
+            var bankList = banks.Select(doc => new BankListItem
+            {
+                BankName = doc["name"].AsString,
+                IspbCode = doc["bankCode"].AsString,
+                ActiveAccounts = doc["activeAccounts"].AsInt32
+            }).ToList();
 
-        //public async Task SaveBank(Bank bank)
-        //{
-        //    await bankCollection.InsertOneAsync(bank);
-        //}
+            return bankList;
+        }
 
-        //public async Task UpdateBank(Bank bank)
-        //{
-        //    await bankCollection.DeleteOneAsync(d => d.BankId == bank.BankId);
+        public async Task<List<BankAccountItem>> GetBankAccountsAsync(string bankCode)
+        {
+            var accounts = await bankCollection
+                .Aggregate()
+                .Match(new BsonDocument("bankCode", bankCode))
+                .ToListAsync();
 
-        //    await bankCollection.InsertOneAsync(bank);
-        //}
+            var accountList = accounts.Select(doc => new BankAccountItem
+            {
+                Holder = doc["holder"].AsString,
+                CpfCnpj = doc["cpfCnpj"].AsString,
+                AgencyAccount = doc["agencyAccount"].AsString,
+                Balance = doc["balance"].AsDouble,
+                Limit = doc["limit"].AsDouble,
+                Status = doc["status"].AsString
+            }).ToList();
 
-        //public async Task<Bank> UpdateBank(Guid bankId, BankEditRequest bankEditRequest)
-        //{
-        //    var filter = Builders<Bank>.Filter.Eq(x => x.BankId, bankId);
+            return accountList;
+        }
 
-        //    var bank = (await bankCollection.FindAsync(d => d.BankId == bankId)).FirstOrDefault();
+        public async Task<bool> UpdateBankAsync(string bankCode, BankUpdateModel updateModel)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("bankCode", bankCode);
+            var update = Builders<BsonDocument>.Update
+                .Set("name", updateModel.Name)
+                .Set("activeAccounts", updateModel.ActiveAccounts);
 
-        //    if (bankEditRequest == null) return null;
-
-        //    var updateDefinitions = new List<UpdateDefinition<Bank>>();
-
-        //    var properties = typeof(BankEditRequest).GetProperties();
-
-        //    foreach (var prop in properties)
-        //    {
-        //        var value = prop.GetValue(bankEditRequest);
-        //        if (value != null)
-        //        {
-        //            updateDefinitions.Add(Builders<Bank>.Update.Set(prop.Name, value));
-        //        }
-        //    }
-
-        //    if (updateDefinitions.Count <= 0) return null;
-
-        //    var update = Builders<Bank>.Update.Combine(updateDefinitions);
-
-        //    return await bankCollection.FindOneAndUpdateAsync<Bank>(filter, update);
-        //}
-
-        //public async Task<bool> DeleteBank(Guid bankId)
-        //{
-        //    return (await bankCollection.DeleteOneAsync(d => d.BankId == bankId)).DeletedCount > 0;
-        //}
+            var result = await bankCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
 

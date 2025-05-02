@@ -1,3 +1,4 @@
+using fusion.bank.core;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
@@ -10,7 +11,8 @@ namespace fusion.bank.transfer.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class TransferController(ITransferRepository transferRepository, IRequestClient<NewTransferAccountRequest> requestClient) : MainController
+    public class TransferController(ITransferRepository transferRepository, 
+        IRequestClient<NewTransferAccountRequest> requestClient, IPublishEndpoint publishEndpoint) : MainController
     {
         [HttpPost("create-transfer")]
         public async Task<IActionResult> CreateTransfer(Transfer transfer)
@@ -18,7 +20,10 @@ namespace fusion.bank.transfer.api.Controllers
             if (transfer.IsSchedule)
             {
                 await transferRepository.SaveTransfer(transfer);
-                return Ok(transfer);
+
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceive));
+
+                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false });
             }
 
             var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
@@ -26,9 +31,14 @@ namespace fusion.bank.transfer.api.Controllers
             if(response.Message.Success)
             {
                 transfer.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
+
                 await transferRepository.SaveTransfer(transfer);
 
-                return CreateResponse(response.Message, "transfer was successful.");
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceive));
+
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferReceivedEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameOwner));
+
+                return CreateResponse(response.Message, "transferencia realizada com sucesso.");
             }
 
             return CreateResponse(response.Message);

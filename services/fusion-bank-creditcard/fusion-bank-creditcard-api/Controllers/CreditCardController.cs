@@ -1,9 +1,11 @@
+using fusion.bank.core;
 using fusion.bank.core.Enum;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using fusion.bank.creditcard.domain.Interfaces;
+using fusion.bank.creditcard.services.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +15,10 @@ namespace fusion.bank.creditCard.api.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class CentralBankController(ILogger<CentralBankController> logger, ICreditCartRepository creditCartRepository, 
+public class CreditBankController(ILogger<CreditBankController> logger, ICreditCartRepository creditCartRepository,
     IRequestClient<NewAccountRequestInformation> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
-    IGenerateCreditCardService generateCreditCardService)  : MainController
+    IPublishEndpoint publishEndpoint, IBackgroundTaskQueue backgroundTaskQueue,
+    IGenerateCreditCardService generateCreditCardService) : MainController
 {
     [HttpGet("request-creditcard/{accountId:Guid}")]
     public async Task<IActionResult> RequestCreditCard(Guid accountId)
@@ -39,41 +42,57 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
             return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel solicitar um cartao para voce agora, tente novamente mais tarde.");
         }
 
-        var (cardType, success) = DetermineCreditCardType(
+        await publishEndpoint.Publish(GenerateEvent.CreateCreditCardRequestedEvent(accountId.ToString()));
+
+        await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
+        {
+            // Simular atraso de processamento (ex.: 5 segundos)
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+
+            var (cardType, success) = DetermineCreditCardType(
             creditCardRequestResponse.Message.Data.SalaryPerMonth,
             creditCardRequestResponse.Message.Data.AverageBudgetPerMonth,
             creditCardRequestResponse.Message.Data.AccountType
         );
 
-        if (!success)
+            if (!success)
+            {
+                await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
+                return;
+            }
+
+            var creditCard = GetCreditCard(cardType, accountId);
+
+            if (creditCard is null)
+            {
+                await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
+                return;
+            }
+
+            var generateInformations = await generateCreditCardService.GenerateCreditCard(creditCard.CreditCardFlag);
+
+            creditCard.CreditCardNumber = generateInformations.CreditCardNumber;
+            creditCard.CreditCardCode = generateInformations.CreditCardCode;
+            creditCard.CreditCardValidity = DateTime.ParseExact(generateInformations.CreditCardValidity, "dd/MM/yyyy", null);
+            creditCard.CreditCardName = creditCardRequestResponse.Message.Data.Name;
+
+            var creditCardCreated = await requestClientCreated.GetResponse<DataContractMessage<string>>(new NewCreditCardCreatedRequest { CreditCard = creditCard, AccountId = creditCard.AccountId });
+
+            if (!creditCardCreated.Message.Success)
+            {
+                await publishEndpoint.Publish(GenerateEvent.CreateCreditCardFailedEvent(accountId.ToString(), creditCard.CreditCardNextAttempt));
+                return;
+            }
+
+            await creditCartRepository.SaveTriedCard(creditCard);
+
+        });
+
+        return Accepted(new DataContractMessage<string>
         {
-            return await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
-        }
-
-        var creditCard = GetCreditCard(cardType, accountId);
-
-        if (creditCard is null)
-        {
-            return await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
-        }
-
-        var generateInformations = await generateCreditCardService.GenerateCreditCard(creditCard.CreditCardFlag);
-
-        creditCard.CreditCardNumber = generateInformations.CreditCardNumber;
-        creditCard.CreditCardCode = generateInformations.CreditCardCode;
-        creditCard.CreditCardValidity = DateTime.ParseExact(generateInformations.CreditCardValidity, "dd/MM/yyyy", null);
-        creditCard.CreditCardName = creditCardRequestResponse.Message.Data.Name;
-
-        var creditCardCreated = await requestClientCreated.GetResponse<DataContractMessage<string>>(new NewCreditCardCreatedRequest { CreditCard = creditCard, AccountId = creditCard.AccountId});
-
-        if (!creditCardCreated.Message.Success)
-        {
-            return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel solicitar um cartao para voce agora, tente novamente mais tarde.");
-        }
-
-        await creditCartRepository.SaveTriedCard(creditCard);
-
-        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = true});
+            Success = true,
+            Data = "Sua solicitação de cartão está em processamento. Você será notificado em breve."
+        });
     }
 
     [HttpGet("list-all-creditcards")]
@@ -159,6 +178,8 @@ public class CentralBankController(ILogger<CentralBankController> logger, ICredi
         var saveCreditCard = new CreditCard { CreditCardTriedTimes = 1, CreditCardNextAttempt = CalculateNextAttempt(1), AccountId = accountId, Id = cardExist == Guid.Empty ? Guid.NewGuid() : cardExist, CreditCardTried = true };
 
         await creditCartRepository.SaveTriedCard(saveCreditCard);
+
+        await publishEndpoint.Publish(GenerateEvent.CreateCreditCardFailedEvent(accountId.ToString(), saveCreditCard.CreditCardNextAttempt));
 
         return CreateResponse(new DataContractMessage<string>(), $"Nao foi possivel concender um cartao de credito para voce agora, tente novamente em {saveCreditCard.CreditCardNextAttempt}");
     }

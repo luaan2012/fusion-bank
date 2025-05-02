@@ -1,4 +1,6 @@
 ﻿using fusion.bank.core.Enum;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
 
 namespace fusion.bank.core.Model
 {
@@ -35,7 +37,11 @@ namespace fusion.bank.core.Model
         public decimal CreditCardUsed { get; set; }
         public decimal CreditCardAvaliable { get => CreditCardLimit - CreditCardUsed; }
         public DateTime CreditCardValidity { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public CreditCardType CreditCardType { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public CreditCardFlag CreditCardFlag { get; set; }
         public bool CreditCardTried { get; set; }
         public int CreditCardTriedTimes { get; set; }

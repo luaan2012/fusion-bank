@@ -1,5 +1,6 @@
 ﻿using fusion.bank.core.Enum;
 using fusion.bank.core.Helpers;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace fusion.bank.core.Model
@@ -20,8 +21,14 @@ namespace fusion.bank.core.Model
         public decimal TransferLimit { get; internal set; }
         public decimal SalaryPerMonth { get; private set; }
         public List<CreditCard> CreditCards { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public AccountType AccountType { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public StatusAccount Status { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public DocumentType DocumentType { get; set; }
         public string Document { get; set; }
         public string Email { get; set; }

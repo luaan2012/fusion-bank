@@ -16,7 +16,7 @@ namespace fusion.bank.account.repository
         {
             var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
             var dataBase = client.GetDatabase("fusion_db");
-            accountCollection = dataBase.GetCollection<Account>("accountCollection");
+            accountCollection = dataBase.GetCollection<Account>(configuration["CollectionName"]);
         }
 
 
@@ -73,7 +73,9 @@ namespace fusion.bank.account.repository
 
             var update = Builders<Account>.Update.Set(d => d.KeyAccount, null);
 
-            return await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+            await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+
+            return account;
         }
 
         public async Task<Account> EditKeyAccount(Guid accountId, string keyAccount)
@@ -86,7 +88,9 @@ namespace fusion.bank.account.repository
 
             var update = Builders<Account>.Update.Set(d => d.KeyAccount, keyAccount);
 
-            return await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+            await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
+
+            return account;
         }
 
         public async Task<bool> DeleteAccount(Guid accountId)

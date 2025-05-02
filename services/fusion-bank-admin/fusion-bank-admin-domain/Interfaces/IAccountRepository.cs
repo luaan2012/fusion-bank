@@ -4,5 +4,6 @@ namespace fusion.bank.admin.domain.Interfaces
 {
     public interface IAccountRepository
     {
+        Task<AccountRegistrationSummary> GetAccountRegistrationSummaryAsync();
     }
 }

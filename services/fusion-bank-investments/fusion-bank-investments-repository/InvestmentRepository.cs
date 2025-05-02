@@ -14,7 +14,7 @@ namespace fusion.bank.investments.repository
         {
             var client = new MongoClient(configuration.GetConnectionString("MongoDB"));
             var dataBase = client.GetDatabase("fusion_db");
-            investmentCollection = dataBase.GetCollection<Investment>("investmentCollection");
+            investmentCollection = dataBase.GetCollection<Investment>(configuration["CollectionName"]);
         }
 
         public async Task<Investment> GetInvestmentById(Guid guid)

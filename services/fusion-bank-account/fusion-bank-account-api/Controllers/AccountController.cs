@@ -1,5 +1,6 @@
 using fusion.bank.account.domain.Interfaces;
 using fusion.bank.account.domain.Request;
+using fusion.bank.core;
 using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
@@ -18,6 +19,7 @@ namespace fusion.bank.account.Controllers
     public class AccountController(IAccountRepository accountRepository, 
         ILogger<AccountController> logger, IPublishEndpoint bus, 
         IRequestClient<NewKeyAccountRequest> requestClient, 
+        IPublishEndpoint publishEndpoint,
         IConfiguration configuration) : MainController
     {
         [AllowAnonymous]
@@ -25,8 +27,9 @@ namespace fusion.bank.account.Controllers
         public async Task<IActionResult> CreateAccount(AccountRequest accountRequest)
         {
             var account = new Account();
-            account.CreateAccount(account.Name, account.LastName, account.AccountType, account.BankISBP, 
-                account.DocumentType, account.Document, account.Email, account.Password, account.SalaryPerMonth);
+
+            account.CreateAccount(accountRequest.Name, accountRequest.LastName, accountRequest.AccountType, accountRequest.BankISBP,
+                accountRequest.DocumentType, accountRequest.Document, accountRequest.Email, accountRequest.Password, accountRequest.SalaryPerMonth);
 
             await accountRepository.SaveAccount(account);
 
@@ -38,9 +41,9 @@ namespace fusion.bank.account.Controllers
 
             var token = AutenticationService.GenerateJwtToken(account, configuration);
 
-            var response = new DataContractMessage<string> { Data = token, Success = true };
+            await publishEndpoint.Publish(GenerateEvent.CreateAccountCreatedEvent(account.AccountId.ToString()));
 
-            return CreateResponse(response);
+            return CreateResponse(new DataContractMessage<string> { Data = token, Success = true });
         }
 
         [AllowAnonymous]
@@ -56,10 +59,13 @@ namespace fusion.bank.account.Controllers
 
             var token = AutenticationService.GenerateJwtToken(account, configuration);
 
+            await publishEndpoint.Publish(GenerateEvent.CreateLoginEvent(account.AccountId.ToString()));
+
             return CreateResponse(new DataContractMessage<string> { Data = token, Success = true });
         }
 
         [HttpGet("list-account")]
+        [AllowAnonymous]
         public async Task<IActionResult> ListAccount()
         {
             var response = new DataContractMessage<IEnumerable<Account>> { Data = await accountRepository.ListAllAccount(), Success = true };
@@ -67,7 +73,7 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(response);
         }
 
-        [HttpGet("get-account-by-id/id")]
+        [HttpGet("get-account-by-id/{id}")]
         public async Task<IActionResult> GetAccountById(Guid id)
         {
             return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountById(id), Success = true });
@@ -79,37 +85,55 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(keyAccount), Success = true });
         }
 
-        [HttpPut("edit-account/key")]
+        [HttpPut("edit-account/{key}")]
         public async Task<IActionResult> EditAccountByKey(string keyAccountt, AccountEditRequest accountEditRequest)
         {
-            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.EditAccountByKey(keyAccountt, accountEditRequest), Success = true });
+            var response = await accountRepository.EditAccountByKey(keyAccountt, accountEditRequest);
+
+            if(response is null) return CreateResponse(new DataContractMessage<Account> { Success = false }, "Aconteceu um erro ao tentar atualizar a sua conta, tente novamente mais tarde.");
+
+            await publishEndpoint.Publish(GenerateEvent.CreateAccountEditedEvent(response.AccountId.ToString()));
+
+            return CreateResponse(new DataContractMessage<Account> { Data = response, Success = true });
         }
 
-        [HttpDelete("delete-account/accountId")]
+        [HttpDelete("delete-account/{accountId}")]
         public async Task<IActionResult> EditAccountByKey(Guid accountId)
         {
             return CreateResponse(new DataContractMessage<bool> { Data = await accountRepository.DeleteAccount(accountId), Success = true });
         }
 
-        [HttpDelete("delete-key-account/accountId")]
+        [HttpDelete("delete-key-account/{accountId}")]
         public async Task<IActionResult> DeleteKeyAccount(Guid accountId)
         {
-            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.DeleteKeyAccount(accountId), Success = true });
+            var response = await accountRepository.DeleteKeyAccount(accountId);
+
+            if (response is null) return CreateResponse(new DataContractMessage<Account> { Success = false }, "Aconteceu um erro ao tentar excluir sua chave, tente novamente mais tarde.");
+
+            await publishEndpoint.Publish(GenerateEvent.CreateKeyDeletedEvent(response.AccountId.ToString(), response.KeyAccount));
+
+            return CreateResponse(new DataContractMessage<Account> { Data = response, Success = true });
         }
 
-        [HttpPut("edit-key-account/accountId")]
+        [HttpPut("edit-key-account/{accountId}")]
         public async Task<IActionResult> EditKeyAccount(Guid accountId, string keyAccount)
         {
-            return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.EditKeyAccount(accountId, keyAccount), Success = true });
+            var response = await accountRepository.EditKeyAccount(accountId, keyAccount);
+
+            if (response is null) return CreateResponse(new DataContractMessage<Account> { Success = false }, "Aconteceu um erro ao tentar editar sua chave, tente novamente mais tarde.");
+
+            await publishEndpoint.Publish(GenerateEvent.CreateKeyEditedEvent(response.AccountId.ToString(), response.KeyAccount, keyAccount));
+
+            return CreateResponse(new DataContractMessage<Account> { Data = response, Success = true });
         }
 
-        [HttpPut("set-dark-mode/accountId")]
+        [HttpPut("set-dark-mode/{accountId}")]
         public async Task<IActionResult> EditKeyAccount(Guid accountId, bool darkMode)
         {
             return CreateResponse(new DataContractMessage<string> { Success = true });
         }
 
-        [HttpPost("register-key-account/id:guid/{key:string}")]
+        [HttpPost("register-key-account/{id}/{key}")]
         public async Task<IActionResult> ListAccountById(Guid id, string keyAccount)
         {
             var account = await accountRepository.ListAccountById(id);
@@ -127,6 +151,8 @@ namespace fusion.bank.account.Controllers
             }
             
             await accountRepository.SaveKeyByAccount(id, keyAccount);
+
+            await publishEndpoint.Publish(GenerateEvent.CreateKeyCreatedEvent(account.AccountId.ToString(), keyAccount));
 
             return CreateResponse(new DataContractMessage<string> { Success = true });
         }

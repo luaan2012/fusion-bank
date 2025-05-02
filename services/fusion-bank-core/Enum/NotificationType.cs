@@ -1,0 +1,23 @@
+﻿namespace fusion.bank.core.Enum
+{
+    public enum NotificationType
+    {
+        LOGIN,
+        ACCOUNT_CREATED,
+        KEY_CREATED,
+        KEY_DELETED,
+        KEY_EDITED,
+        TRANSFER_MADE,
+        TRANSFER_RECEIVE,
+        TRANSFER_SCHEDULED,
+        INVESTMENT,
+        DEPOSIT,
+        BILLET_GENERATED,
+        BILLET_WILL_EXPIRE,
+        BILLET_DUE,
+        ACCOUNT_EDITED,
+        CREDITCARD_REQUESTED,
+        CREDITCARD_RESPONSED,
+        CREDITCARD_FAILED
+    }
+}
