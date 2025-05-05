@@ -19,7 +19,7 @@ namespace fusion.bank.core.Autentication
                 new Claim(JwtRegisteredClaimNames.Sub, account.Name),
                 new Claim(JwtRegisteredClaimNames.Jti, account.AccountId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, account.Email),
-                new Claim(JwtRegisteredClaimNames.Sub, account.AccountNumber.ToString()),
+                new Claim(JwtRegisteredClaimNames.NameId, account.AccountNumber.ToString()),
             };
 
             var token = new JwtSecurityToken(

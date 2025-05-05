@@ -125,9 +125,9 @@ namespace fusion.bank.account.repository
             await accountCollection.UpdateOneAsync(filter, update);
         }
 
-        public async Task SetDarkMode(Guid idAccount, bool darkMode)
+        public async Task SetDarkMode(Guid accountId, bool darkMode)
         {
-            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, idAccount);
+            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, accountId);
             var update = Builders<Account>.Update.Set(d => d.DarkMode, darkMode);
 
             await accountCollection.UpdateOneAsync(filter, update);

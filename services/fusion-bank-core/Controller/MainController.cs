@@ -1,4 +1,5 @@
 ﻿using fusion.bank.core.Messages.DataContract;
+using fusion.bank.core.Model;
 using Microsoft.AspNetCore.Mvc;
 
 public class MainController : ControllerBase
@@ -19,7 +20,8 @@ public class MainController : ControllerBase
 
         if(message.Data is null && !string.IsNullOrEmpty(optionMessage))
         {
-            var newMessage = new DataContractMessage<string>(optionMessage, false);
+            var error = new ErrorMessage { Message = optionMessage };
+            var newMessage = new DataContractMessage<string>().HandleError(error);
             return BadRequest(newMessage);
         }
 

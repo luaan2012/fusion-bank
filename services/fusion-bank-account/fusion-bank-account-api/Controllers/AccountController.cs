@@ -1,5 +1,6 @@
 using fusion.bank.account.domain.Interfaces;
 using fusion.bank.account.domain.Request;
+using fusion.bank.account.domain.Response;
 using fusion.bank.core;
 using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.DataContract;
@@ -10,6 +11,7 @@ using fusion.bank.core.Model;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace fusion.bank.account.Controllers
 {
@@ -43,7 +45,7 @@ namespace fusion.bank.account.Controllers
 
             await publishEndpoint.Publish(GenerateEvent.CreateAccountCreatedEvent(account.AccountId.ToString()));
 
-            return CreateResponse(new DataContractMessage<string> { Data = token, Success = true });
+            return CreateResponse(new DataContractMessage<LoginResponse> { Data = new LoginResponse { Token = token, Account = account}, Success = true });
         }
 
         [AllowAnonymous]
@@ -61,7 +63,7 @@ namespace fusion.bank.account.Controllers
 
             await publishEndpoint.Publish(GenerateEvent.CreateLoginEvent(account.AccountId.ToString()));
 
-            return CreateResponse(new DataContractMessage<string> { Data = token, Success = true });
+            return CreateResponse(new DataContractMessage<LoginResponse> { Data = new LoginResponse { Token = token, Account = account }, Success = true });
         }
 
         [HttpGet("list-account")]
@@ -128,9 +130,11 @@ namespace fusion.bank.account.Controllers
         }
 
         [HttpPut("set-dark-mode/{accountId}")]
-        public async Task<IActionResult> EditKeyAccount(Guid accountId, bool darkMode)
+        public async Task<IActionResult> SetDarkMode(Guid accountId, bool darkMode)
         {
-            return CreateResponse(new DataContractMessage<string> { Success = true });
+            await accountRepository.SetDarkMode(accountId, darkMode);
+
+            return CreateResponse(new DataContractMessage<string> { Success = true }, "DarkMode atualizado com sucesso");
         }
 
         [HttpPost("register-key-account/{id}/{key}")]

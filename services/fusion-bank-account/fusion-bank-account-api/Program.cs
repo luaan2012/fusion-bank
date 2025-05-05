@@ -12,6 +12,16 @@ builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerial
 
 builder.Services.AddSwaggerConfig(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.AllowAnyOrigin() // Origem do front-end
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddMassTransitConfig(builder.Configuration);
 
 builder.Services.AddDependencyInjection();
@@ -27,6 +37,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();

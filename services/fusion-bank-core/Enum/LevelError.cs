@@ -4,6 +4,6 @@
     {
         LOW,
         MEDIUM,
-        HIGHT
+        HIGH
     }
 }

@@ -36,7 +36,7 @@ namespace fusion.bank.core.Middlewares
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var errorResponse = new DataContractMessage<string>().HandleError(new ErrorMessage { Message = exception.Message, LevelError = Enum.LevelError.HIGHT});
+            var errorResponse = new DataContractMessage<string>().HandleError(new ErrorMessage { Message = exception.Message, LevelError = Enum.LevelError.HIGH});
             var jsonResponse = JsonSerializer.Serialize(errorResponse);
             return context.Response.WriteAsync(jsonResponse);
         }
