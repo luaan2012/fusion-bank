@@ -12,40 +12,40 @@ namespace fusion.bank.account.service
     {
         public async Task Consume(ConsumeContext<NewTransferAccountRequest> context)
         {
-            var accountReceive = context.Message.TransferType switch
+            var accountReceiver = context.Message.TransferType switch
             {
                 TransferType.PIX => await accountRepository.ListAccountByKey(context.Message.KeyAccount),
                 TransferType.TED => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
                 TransferType.DOC => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
             };
 
-            var accountOwner = await accountRepository.ListAccountByNumberAccount(context.Message.AccountOwner);
+            var AccountPayer = await accountRepository.ListAccountByNumberAccount(context.Message.AccountPayer);
 
-            if (accountReceive is null || accountOwner is null)
+            if (accountReceiver is null || AccountPayer is null)
             {
-                await context.RespondAsync(accountReceive is null
+                await context.RespondAsync(accountReceiver is null
                     ? new DataContractMessage<TransferredAccountResponse>().HandleError(new InexistentAccountReceiveError())
                     : new DataContractMessage<TransferredAccountResponse>().HandleError(new InexistentAccountPayedError()));
 
                 return;
             }
 
-            accountOwner.Debit(context.Message.Amount);
+            AccountPayer.Debit(context.Message.Amount);
 
-            accountReceive.Credit(context.Message.Amount);
+            accountReceiver.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, accountOwner.AccountId, accountReceive.Balance, accountOwner.Balance, context.Message.KeyAccount, context.Message.AccountOwner));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, AccountPayer.AccountId, accountReceiver.Balance, AccountPayer.Balance, context.Message.KeyAccount, context.Message.AccountPayer));
 
             if (!response.Message.Success)
             {
                 return;
             }
 
-            await accountRepository.UpdateAccount(accountReceive);
+            await accountRepository.UpdateAccount(accountReceiver);
 
-            await accountRepository.UpdateAccount(accountOwner);
+            await accountRepository.UpdateAccount(AccountPayer);
 
-            await context.RespondAsync(new DataContractMessage<TransferredAccountResponse>().HandleSuccess(new TransferredAccountResponse(true)));
+            await context.RespondAsync(new DataContractMessage<TransferredAccountResponse>().HandleSuccess(new TransferredAccountResponse(true, accountReceiver.AccountId, accountReceiver.FullName)));
         }
     }
 }

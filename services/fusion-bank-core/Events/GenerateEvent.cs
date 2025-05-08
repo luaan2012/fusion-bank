@@ -26,6 +26,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Login efetuado",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.LOGIN,
                 AccountId = accountId,
@@ -41,6 +42,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Conta atualizada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.ACCOUNT_EDITED,
                 AccountId = accountId,
@@ -58,6 +60,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Boleto vencido",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_DUE,
                 AccountId = accountId,
@@ -77,6 +80,7 @@ namespace fusion.bank.core
             var codeLastFour = GetLastFourChars(codeGenerate);
             return new EventMessage
             {
+                Title = "Boleto prestes a vencer",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_WILL_EXPIRE,
                 AccountId = accountId,
@@ -95,6 +99,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Boleto gerado",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.BILLET_GENERATED,
                 AccountId = accountId,
@@ -111,6 +116,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Cartão solicitado",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_REQUESTED,
                 AccountId = accountId,
@@ -126,6 +132,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Erro na sua solicitação",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_FAILED,
                 AccountId = accountId,
@@ -144,6 +151,7 @@ namespace fusion.bank.core
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
+                Title = "Investimento realizado",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.INVESTMENT,
                 AccountId = accountId,
@@ -154,7 +162,7 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string UserReceive)
+        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string UserReceive, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -165,9 +173,11 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Transferencia enviada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_MADE,
                 AccountId = accountId,
+                TransferType = transferType,
                 Amount = formattedAmount,
                 UserReceive = UserReceive,
                 Service = ServiceType.TRANSFER,
@@ -175,7 +185,7 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateTransferReceivedEvent(string accountId, decimal amount, string UserOwner)
+        public static EventMessage CreateTransferReceivedEvent(string accountId, decimal amount, string UserOwner, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -186,8 +196,10 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Transferencia recebida",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_RECEIVE,
+                TransferType = transferType,
                 AccountId = accountId,
                 Amount = formattedAmount,
                 UserOwner = UserOwner,
@@ -203,6 +215,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Conta criada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.ACCOUNT_CREATED,
                 AccountId = accountId,
@@ -211,7 +224,7 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateTransferScheduledEvent(string accountId, decimal amount, string dateSchedule)
+        public static EventMessage CreateTransferScheduledEvent(string accountId, decimal amount, string dateSchedule, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -221,9 +234,11 @@ namespace fusion.bank.core
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
+                Title = "Transferencia agendada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.TRANSFER_SCHEDULED,
                 AccountId = accountId,
+                TransferType = transferType,
                 Amount = formattedAmount,
                 DateSchedule = dateSchedule,
                 Service = ServiceType.TRANSFER,
@@ -240,6 +255,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Chave criada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_CREATED,
                 AccountId = accountId,
@@ -258,6 +274,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Chave deletada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_DELETED,
                 AccountId = accountId,
@@ -276,6 +293,7 @@ namespace fusion.bank.core
 
             return new EventMessage
             {
+                Title = "Chave editada",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.KEY_EDITED,
                 AccountId = accountId,
@@ -298,6 +316,7 @@ namespace fusion.bank.core
             var formattedLimit = FormatAmount(creditCardLimit);
             return new EventMessage
             {
+                Title = "Cartão de crédito liberado",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.CREDITCARD_RESPONSED,
                 AccountId = accountId,
@@ -309,7 +328,7 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateDepositEvent(string accountId, decimal amount)
+        public static EventMessage CreateDepositEvent(string accountId, decimal amount, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -317,8 +336,10 @@ namespace fusion.bank.core
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
+                Title = "Pagamento de boleto",
                 Date = DateTime.UtcNow,
                 Action = NotificationType.DEPOSIT,
+                TransferType = transferType,
                 AccountId = accountId,
                 Amount = formattedAmount,
                 Service = ServiceType.DEPOSIT,

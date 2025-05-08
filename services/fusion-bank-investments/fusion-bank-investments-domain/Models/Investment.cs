@@ -7,6 +7,8 @@ namespace fusion.bank.investments.domain.Models
     public class Investment
     {
         private readonly decimal InterestRate = 0.12M;
+
+        [BsonId]
         public Guid Id { get; set; }
         public Guid AccountId { get; set; }
         public decimal Balance { get; set; }

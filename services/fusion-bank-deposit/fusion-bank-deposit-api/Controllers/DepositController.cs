@@ -1,12 +1,11 @@
 using fusion.bank.core;
+using fusion.bank.core.Enum;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
-using fusion.bank.core.Model;
 using fusion.bank.deposit.domain.Interfaces;
 using fusion.bank.deposit.domain.Models;
 using fusion.bank.deposit.domain.Requests;
 using MassTransit;
-using MassTransit.Transports;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion_bank_deposit_api.Controllers;
@@ -66,7 +65,7 @@ public class DepositController(IDepositRepository depositRepository,
 
         await bus.Publish(new NewDepositAccountProducer(billet.AccountId, billet.DepositId, billet.AccountNumber, billet.Amount));
 
-        await bus.Publish(GenerateEvent.CreateDepositEvent(billet.AccountId.ToString(), billet.Amount));
+        await bus.Publish(GenerateEvent.CreateDepositEvent(billet.AccountId.ToString(), billet.Amount, TransferType.BOLETO));
 
         return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Depositamos seu boleto. Entre 1 a 30 min seu dinheira cairá na sua conta.");
     }

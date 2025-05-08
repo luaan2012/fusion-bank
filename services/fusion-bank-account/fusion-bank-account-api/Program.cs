@@ -10,17 +10,9 @@ builder.Services.AddAuthenticationHandle(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddSwaggerConfig(builder.Configuration);
+builder.Services.AddCorsApis();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-    {
-        policy.AllowAnyOrigin() // Origem do front-end
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+builder.Services.AddSwaggerConfig(builder.Configuration);
 
 builder.Services.AddMassTransitConfig(builder.Configuration);
 
@@ -38,10 +30,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
-
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCorsApis();
 
 app.MapControllers();
 

@@ -2,6 +2,7 @@
 using fusion.bank.central.domain.Model;
 using fusion.bank.central.domain.Request;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace fusion.bank.central.repository
@@ -44,7 +45,13 @@ namespace fusion.bank.central.repository
 
         public async Task<IEnumerable<Bank>> ListAllBank()
         {
-            return await bankCollection.AsQueryable().ToListAsync();
+            var projection = Builders<Bank>.Projection
+            .Exclude(d => d.Accounts);
+
+            // Executar a consulta com a projeção
+            return await bankCollection.Find(new BsonDocument()) 
+                .Project<Bank>(projection)
+                .ToListAsync();
         }
 
         public async Task SaveBank(Bank bank)

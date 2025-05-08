@@ -4,6 +4,8 @@
     {
         PIX, 
         DOC,
-        TED
+        TED,
+        DEPOSITO,
+        BOLETO
     }
 }

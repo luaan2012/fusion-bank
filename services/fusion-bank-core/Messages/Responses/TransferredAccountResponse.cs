@@ -1,12 +1,9 @@
 ﻿namespace fusion.bank.core.Messages.Responses
 {
-    public class TransferredAccountResponse
+    public class TransferredAccountResponse(bool transferred, Guid accountId, string nameReceiver)
     {
-        public TransferredAccountResponse(bool transferred)
-        {
-            Transferred = transferred;
-        }
-
-        public bool Transferred { get; set; }
+        public bool Transferred { get; set; } = transferred;
+        public Guid AccountId { get; set; } = accountId;
+        public string NameReceiver { get; set; } = nameReceiver;
     }
 }

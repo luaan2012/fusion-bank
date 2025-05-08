@@ -6,6 +6,7 @@ namespace fusion.bank.core.Events
 {
     public class EventMessage
     {
+        [BsonId]
         public Guid EventId { get; set; } = Guid.NewGuid();
         public DateTime Date { get; set; }
 
@@ -26,9 +27,10 @@ namespace fusion.bank.core.Events
         public string CreditCardLimit { get; set; } 
         public string CodeGenerate { get; set; }
         public string Balance { get; set; }
-        public string TransferType { get; set; }
+        public TransferType TransferType { get; set; }
         public string Amount { get; set; }
-       
+        public string Title { get; set; }
+
         [BsonRepresentation(BsonType.String)]
         public ServiceType Service { get; set; } 
         public string Details { get; set; } 

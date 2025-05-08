@@ -17,14 +17,18 @@ namespace fusion.bank.investments.repository
             investmentCollection = dataBase.GetCollection<Investment>(configuration["CollectionName"]);
         }
 
-        public async Task<Investment> GetInvestmentById(Guid guid)
+        public async Task<Investment> GetInvestmentById(Guid guid, Guid accountId)
         {
-            return (await investmentCollection.FindAsync(d => d.Id == guid)).FirstOrDefault();
+            return (await investmentCollection.FindAsync(d => d.Id == guid && d.AccountId == accountId)).FirstOrDefault();
         }
 
-        public async Task<Investment> GetInvestmentByAccountId(Guid guid)
+        public async Task<List<Investment>> ListInvestmentByAccountId(Guid accountId, int limit)
         {
-            return (await investmentCollection.FindAsync(d => d.AccountId == guid)).FirstOrDefault();
+            var filter = Builders<Investment>.Filter.Eq(e => e.AccountId, accountId);
+
+            return await investmentCollection.Find(filter)
+                .Limit(limit)
+                .ToListAsync();
         }
 
         public async Task<List<Investment>> GetAllInvestment()

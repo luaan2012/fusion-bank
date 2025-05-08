@@ -5,6 +5,7 @@ using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.transfer.domain;
 using fusion.bank.transfer.domain.Interfaces;
+using fusion.bank.transfer.domain.Request;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +18,17 @@ namespace fusion.bank.transfer.api.Controllers
         IBackgroundTaskQueue backgroundTaskQueue) : MainController
     {
         [HttpPost("create-transfer")]
-        public async Task<IActionResult> CreateTransfer(Transfer transfer)
+        public async Task<IActionResult> CreateTransfer(TransferRequest transferRequest)
         {
+            var transfer = new Transfer();
+
+            transfer.CreateTransfer(transferRequest);   
+
             if (transfer.IsSchedule)
             {
                 await transferRepository.SaveTransfer(transfer);
 
-                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceive));
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceiver, transfer.TransferType));
 
                 return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false });
             }
@@ -37,7 +42,7 @@ namespace fusion.bank.transfer.api.Controllers
                     await HandleTransfer(transfer);
                 });
 
-                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false }, "Transferencia enviada com sucesso.");
+                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = true }, "Transferencia enviada com sucesso.");
             }
 
             return await HandleTransfer(transfer);
@@ -57,7 +62,7 @@ namespace fusion.bank.transfer.api.Controllers
 
         private async Task<IActionResult> HandleTransfer(Transfer transfer)
         {
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberOwner));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberPayer));
 
             if (response.Message.Success)
             {
@@ -65,9 +70,9 @@ namespace fusion.bank.transfer.api.Controllers
 
                 await transferRepository.SaveTransfer(transfer);
 
-                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceive));
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferMadeEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceiver, transfer.TransferType));
 
-                await publishEndpoint.Publish(GenerateEvent.CreateTransferReceivedEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameOwner));
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferReceivedEvent(response.Message.Data.AccountId.ToString(), transfer.Amount, response.Message.Data.NameReceiver, transfer.TransferType));
 
                 return CreateResponse(response.Message, "transferencia realizada com sucesso.");
             }

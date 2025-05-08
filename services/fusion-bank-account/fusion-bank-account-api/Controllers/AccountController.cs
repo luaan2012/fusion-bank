@@ -11,7 +11,6 @@ using fusion.bank.core.Model;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace fusion.bank.account.Controllers
 {

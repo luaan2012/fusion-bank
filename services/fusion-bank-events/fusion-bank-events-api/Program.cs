@@ -11,16 +11,7 @@ builder.Services.AddAuthenticationHandle(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-    {
-        policy.WithOrigins("http://127.0.0.1:5500") // Origem do front-end
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // Permitir credenciais para SignalR
-    });
-});
+builder.Services.AddCorsApis();
 
 builder.Services.AddSwaggerConfig(builder.Configuration);
 
@@ -40,10 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
-
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCorsApis();
 
 app.MapControllers();
 

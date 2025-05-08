@@ -47,9 +47,9 @@ public class InvestmentController(IRequestClient<NewAccountRequestInformation> r
     }
 
     [HttpPost("handle-investment")]
-    public async Task<IActionResult> HandleInvestment(Guid accountId, decimal amount)
+    public async Task<IActionResult> HandleInvestment(Guid accountId, Guid id, decimal amount)
     {
-        var investment = await investmentRepository.GetInvestmentByAccountId(accountId);
+        var investment = await investmentRepository.GetInvestmentById(id, accountId);
 
         if(investment is null) return CreateResponse(new DataContractMessage<List<Investment>> { Success = false}, "Nenhum investimento foi encontrado.");
 
@@ -88,10 +88,18 @@ public class InvestmentController(IRequestClient<NewAccountRequestInformation> r
         return CreateResponse(new DataContractMessage<List<Investment>> { Success = true }, "Já estamos processando sua solicitacao, aguarde alguns instantes");
     }
 
-    [HttpPost("get-all-investment")]
+    [HttpGet("list-all-investments")]
     public async Task<IActionResult> GetAllInvestments()
     {
         var investment = await investmentRepository.GetAllInvestment();
+
+        return CreateResponse(new DataContractMessage<List<Investment>> { Data = investment, Success = true });
+    }
+
+    [HttpGet("list-investments/{accountId}")]
+    public async Task<IActionResult> ListInvestmentsId(Guid accountId, int limit)
+    {
+        var investment = await investmentRepository.ListInvestmentByAccountId(accountId, limit);
 
         return CreateResponse(new DataContractMessage<List<Investment>> { Data = investment, Success = true });
     }

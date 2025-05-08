@@ -11,45 +11,45 @@ namespace fusion.bank.central.service
     {
         public async Task Consume(ConsumeContext<NewTransferCentralRequest> context)
         {
-            var bankAccountReceive = context.Message.TransferType switch
+            var bankAccountReceiver = context.Message.TransferType switch
             {
                 TransferType.PIX => (await bankRepository.ListAccountBankByKeyAccount(context.Message.KeyAccount)),
                 TransferType.DOC => await bankRepository.ListAccountBankByAccountNumber(context.Message.KeyAccount),
                 TransferType.TED => await bankRepository.ListAccountBankByAccountNumber(context.Message.KeyAccount),
             };
 
-            var bankAccountPayer = await bankRepository.ListAccountBankByAccountNumber(context.Message.AccountOwner);
+            var bankAccountPayer = await bankRepository.ListAccountBankByAccountNumber(context.Message.AccountPayer);
 
-            if (bankAccountReceive is null && bankAccountPayer is null)
+            if (bankAccountReceiver is null && bankAccountPayer is null)
             {
                 return;
             }
 
             //await Task.Delay(8000);
 
-            var accountUpdateReceive = context.Message.TransferType switch
+            var accountUpdateReceiver = context.Message.TransferType switch
             {
-                TransferType.PIX => bankAccountReceive.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount),
-                TransferType.DOC => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
-                TransferType.TED => bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
+                TransferType.PIX => bankAccountReceiver.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount),
+                TransferType.DOC => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
+                TransferType.TED => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
             };
 
-            var accountUpdatePayer = bankAccountReceive.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);
+            var accountUpdatePayer = bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);
 
-            if (accountUpdateReceive is null || accountUpdatePayer is null)
+            if (accountUpdateReceiver is null || accountUpdatePayer is null)
             {
                 return;
             }
 
-            accountUpdateReceive = accountUpdateReceive with { Balance = context.Message.AmountReceive };
+            accountUpdateReceiver = accountUpdateReceiver with { Balance = context.Message.AmountReceiver };
 
-            accountUpdatePayer = accountUpdatePayer with { Balance = context.Message.AmountOwner };
+            accountUpdatePayer = accountUpdatePayer with { Balance = context.Message.AmountPayer };
 
-            bankAccountReceive.UpdateAccount(accountUpdateReceive.AccountId, accountUpdateReceive);
+            bankAccountReceiver.UpdateAccount(accountUpdateReceiver.AccountId, accountUpdateReceiver);
 
             bankAccountPayer.UpdateAccount(accountUpdatePayer.AccountId, accountUpdatePayer);
 
-            await bankRepository.UpdateBank(bankAccountReceive);
+            await bankRepository.UpdateBank(bankAccountReceiver);
 
             await bankRepository.UpdateBank(bankAccountPayer);
 
