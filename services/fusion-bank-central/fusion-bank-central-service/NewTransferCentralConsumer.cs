@@ -13,9 +13,8 @@ namespace fusion.bank.central.service
         {
             var bankAccountReceiver = context.Message.TransferType switch
             {
-                TransferType.PIX => (await bankRepository.ListAccountBankByKeyAccount(context.Message.KeyAccount)),
-                TransferType.DOC => await bankRepository.ListAccountBankByAccountNumber(context.Message.KeyAccount),
-                TransferType.TED => await bankRepository.ListAccountBankByAccountNumber(context.Message.KeyAccount),
+                TransferType.PIX => await bankRepository.ListAccountBankByKeyAccount(context.Message.KeyAccount),
+                TransferType.DOC or TransferType.TED => await bankRepository.ListAccountBankByAccountAgencyNumber(context.Message.AccountReceiver, context.Message.AgencyReceiver)
             };
 
             var bankAccountPayer = await bankRepository.ListAccountBankByAccountNumber(context.Message.AccountPayer);
@@ -30,8 +29,8 @@ namespace fusion.bank.central.service
             var accountUpdateReceiver = context.Message.TransferType switch
             {
                 TransferType.PIX => bankAccountReceiver.Accounts.FirstOrDefault(d => d.KeyAccount == context.Message.KeyAccount),
-                TransferType.DOC => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
-                TransferType.TED => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.KeyAccount),
+                TransferType.DOC => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.AccountReceiver && d.Agency == context.Message.AgencyReceiver),
+                TransferType.TED => bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountNumber == context.Message.AccountReceiver && d.Agency == context.Message.AgencyReceiver),
             };
 
             var accountUpdatePayer = bankAccountReceiver.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);

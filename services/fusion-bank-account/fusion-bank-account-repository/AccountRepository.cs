@@ -25,6 +25,11 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.AccountId == id)).FirstOrDefault();
         }
 
+        public async Task<Account> ListAccountByNumberAgencyAccount(string accountNumber, string agencyNumber)
+        {
+            return (await accountCollection.FindAsync(d => d.AccountNumber == accountNumber && d.Agency == agencyNumber)).FirstOrDefault();
+        }
+
         public async Task<Account> ListAccountByNumberAccount(string accountNumber)
         {
             return (await accountCollection.FindAsync(d => d.AccountNumber == accountNumber)).FirstOrDefault();
@@ -144,11 +149,22 @@ namespace fusion.bank.account.repository
         public async Task<Account> GetAccountPerTypeAndPassoword(LoginRequest loginRequest)
         {
             var filterBuilder = Builders<Account>.Filter;
+            var loginFirst = string.Empty;
+            var loginSecond = string.Empty;
+
+            if(loginRequest.LoginType == LoginType.ACCOUNT)
+            {
+                loginFirst = loginRequest.LoginUser.Substring(0, 8);
+                loginSecond = loginRequest.LoginUser.Substring(loginRequest.LoginUser.Length - 4, 4);
+            }
+
+            
+
             FilterDefinition<Account> filter = loginRequest.LoginType switch
             {
                 LoginType.EMAIL => filterBuilder.Eq(d => d.Email, loginRequest.LoginUser),
                 LoginType.CPFCNPJ => filterBuilder.Eq(d => d.Document, loginRequest.LoginUser),
-                LoginType.ACCOUNT => filterBuilder.Eq(d => d.AccountNumber, loginRequest.LoginUser),
+                LoginType.ACCOUNT => filterBuilder.And(filterBuilder.Eq(d => d.AccountNumber, loginFirst), filterBuilder.Eq(d => d.Agency, loginSecond)),
                 _ => throw new ArgumentException("Tipo de login inválido.")
             };
 

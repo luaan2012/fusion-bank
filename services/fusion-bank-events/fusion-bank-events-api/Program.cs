@@ -11,11 +11,11 @@ builder.Services.AddAuthenticationHandle(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddCorsApis();
-
 builder.Services.AddSwaggerConfig(builder.Configuration);
 
 builder.Services.AddMassTransitConfig(builder.Configuration);
+
+builder.Services.AddCorsHub();
 
 builder.Services.AddDependencyInjection();
 
@@ -31,7 +31,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCorsApis();
+//app.UseCorsApis();
+
+app.UseCors("Hub");
 
 app.MapControllers();
 

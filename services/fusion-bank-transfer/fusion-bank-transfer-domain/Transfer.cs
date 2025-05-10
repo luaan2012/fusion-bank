@@ -12,6 +12,7 @@ namespace fusion.bank.transfer.domain
         public Guid TransferId { get; internal set; }    
         public Guid AccountId { get; set; }
         public string AccountNumberReceiver { get; set; }
+        public string AgencyNumberReceiver { get; set; }
         public string KeyAccount { get; set; }
         public decimal Amount { get; set; }
         public string NamePayer{ get; set; }
@@ -32,7 +33,8 @@ namespace fusion.bank.transfer.domain
         {
             AccountId = request.AccountId;
             AccountNumberPayer = request.AccountNumberPayer;
-            AccountNumberReceiver = request.AccountNumberReceive;
+            AccountNumberReceiver = request.AccountNumberReceiver;
+            AgencyNumberReceiver = request.AgencyNumberReceiver;
             Amount = request.Amount;
             DocumentPayer = request.DocummentPayer;
             DocumentReceiver = request.DocumentReceiver;

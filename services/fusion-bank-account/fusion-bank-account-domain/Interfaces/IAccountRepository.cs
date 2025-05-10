@@ -8,6 +8,7 @@ namespace fusion.bank.account.domain.Interfaces
         Task SaveAccount(Account account);
         Task<IEnumerable<Account>> ListAllAccount();
         Task<Account> ListAccountById(Guid id);
+        Task<Account> ListAccountByNumberAgencyAccount(string accountNumber, string agencyNumber);
         Task<Account> ListAccountByNumberAccount(string accountNumber);
         Task<Account> GetAccountPerTypeAndPassoword(LoginRequest loginRequest);
         Task<Account> EditAccountByKey(string keyAccount, AccountEditRequest accountEditRequest);

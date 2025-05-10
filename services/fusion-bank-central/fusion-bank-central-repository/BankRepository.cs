@@ -43,6 +43,11 @@ namespace fusion.bank.central.repository
             return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountNumber == accountNumber))).FirstOrDefault();
         }
 
+        public async Task<Bank> ListAccountBankByAccountAgencyNumber(string accountNumber, string agencyNumber)
+        {
+            return (await bankCollection.FindAsync(d => d.Accounts.Exists(d => d.AccountNumber == accountNumber && d.Agency == agencyNumber))).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<Bank>> ListAllBank()
         {
             var projection = Builders<Bank>.Projection

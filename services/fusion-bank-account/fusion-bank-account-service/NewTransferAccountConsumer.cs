@@ -15,8 +15,7 @@ namespace fusion.bank.account.service
             var accountReceiver = context.Message.TransferType switch
             {
                 TransferType.PIX => await accountRepository.ListAccountByKey(context.Message.KeyAccount),
-                TransferType.TED => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
-                TransferType.DOC => await accountRepository.ListAccountByNumberAccount(context.Message.KeyAccount),
+                TransferType.TED or TransferType.DOC => await accountRepository.ListAccountByNumberAgencyAccount(context.Message.AccountReceiver, context.Message.AgencyReceiver),
             };
 
             var AccountPayer = await accountRepository.ListAccountByNumberAccount(context.Message.AccountPayer);
@@ -34,7 +33,8 @@ namespace fusion.bank.account.service
 
             accountReceiver.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, AccountPayer.AccountId, accountReceiver.Balance, AccountPayer.Balance, context.Message.KeyAccount, context.Message.AccountPayer));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, AccountPayer.AccountId, accountReceiver.Balance, 
+                AccountPayer.Balance, context.Message.KeyAccount, context.Message.AccountPayer, context.Message.AccountReceiver, context.Message.AgencyReceiver));
 
             if (!response.Message.Success)
             {

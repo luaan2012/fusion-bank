@@ -12,6 +12,7 @@ namespace fusion.bank.central.domain.Interfaces
         Task<Bank> ListBankByISPB(string id);
         Task<Bank> ListAccountBankByKeyAccount(string keyAccount);
         Task<Bank> ListAccountBankByAccountNumber(string accountNumber);
+        Task<Bank> ListAccountBankByAccountAgencyNumber(string accountNumber, string agencyNumber);
         Task<bool> DeleteBank(Guid bankId);
         Task<Bank> UpdateBank(Guid bankId, BankEditRequest bankEditRequest);
         Task UpdateBank(Bank bank);

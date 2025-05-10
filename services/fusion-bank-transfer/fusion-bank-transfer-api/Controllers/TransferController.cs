@@ -1,9 +1,11 @@
 using fusion.bank.core;
+using fusion.bank.core.Enum;
 using fusion.bank.core.Interfaces;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
 using fusion.bank.core.Messages.Responses;
 using fusion.bank.transfer.domain;
+using fusion.bank.transfer.domain.Enum;
 using fusion.bank.transfer.domain.Interfaces;
 using fusion.bank.transfer.domain.Request;
 using MassTransit;
@@ -33,16 +35,22 @@ namespace fusion.bank.transfer.api.Controllers
                 return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = false });
             }
 
-            if (transfer is { TransferType: core.Enum.TransferType.DOC } or { TransferType: core.Enum.TransferType.TED })
+            if (transfer is { TransferType: TransferType.DOC } or { TransferType: TransferType.TED })
             {
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferProcessingEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceiver, transfer.TransferType));
+
                 await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
                 {
-                    await Task.Delay(Random.Shared.Next(10, 60));
-
+                    await Task.Delay(
+                        transfer.TransferType == TransferType.TED
+                            ? Random.Shared.Next(15000, 20000)
+                            : Random.Shared.Next(55000, 60000)
+                    );
+                    
                     await HandleTransfer(transfer);
                 });
 
-                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = true }, "Transferencia enviada com sucesso.");
+                return CreateResponse(new DataContractMessage<Transfer>() { Data = transfer, Success = true }, "Transferencia entrou em processamento, aguarde entre 10 a 50 segundos para efetivaçao.");
             }
 
             return await HandleTransfer(transfer);
@@ -62,11 +70,18 @@ namespace fusion.bank.transfer.api.Controllers
 
         private async Task<IActionResult> HandleTransfer(Transfer transfer)
         {
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, transfer.KeyAccount, transfer.Amount, transfer.AccountNumberPayer));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(transfer.TransferType, 
+                transfer.KeyAccount, transfer.Amount, transfer.AccountNumberPayer, transfer.AccountNumberReceiver, transfer.AgencyNumberReceiver));
+
+            if(!response.Message.Success && transfer.TransferType != TransferType.PIX)
+            {
+                await publishEndpoint.Publish(GenerateEvent.CreateTransferFailedEvent(transfer.AccountId.ToString(), transfer.Amount, transfer.NameReceiver, transfer.AccountNumberReceiver, transfer.AgencyNumberReceiver, transfer.TransferType));
+            }
+
 
             if (response.Message.Success)
             {
-                transfer.TransferStatus = domain.Enum.TransferStatus.COMPLETE;
+                transfer.TransferStatus = TransferStatus.COMPLETE;
 
                 await transferRepository.SaveTransfer(transfer);
 

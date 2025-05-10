@@ -36,7 +36,8 @@ namespace fusion.bank.transfer.services
 
                 foreach (var schedule in schedules)
                 {
-                    var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(schedule.TransferType, schedule.KeyAccount, schedule.Amount, schedule.AccountNumberPayer));
+                    var response = await requestClient.GetResponse<DataContractMessage<TransferredAccountResponse>>(new NewTransferAccountRequest(schedule.TransferType, schedule.KeyAccount, 
+                        schedule.Amount, schedule.AccountNumberPayer, schedule.AccountNumberReceiver, schedule.AgencyNumberReceiver));
 
                     if (response.Message.Success)
                     {

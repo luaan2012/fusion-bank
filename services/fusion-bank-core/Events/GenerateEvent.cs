@@ -143,11 +143,6 @@ namespace fusion.bank.core
 
         public static EventMessage CreateInvestmentEvent(string accountId, decimal amount, string investmentType)
         {
-            if (string.IsNullOrEmpty(accountId))
-                throw new ArgumentNullException(nameof(accountId));
-            if (string.IsNullOrEmpty(investmentType))
-                throw new ArgumentNullException(nameof(investmentType));
-
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
@@ -162,13 +157,8 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string UserReceive, TransferType transferType)
+        public static EventMessage CreateTransferMadeEvent(string accountId, decimal amount, string userReceive, TransferType transferType)
         {
-            if (string.IsNullOrEmpty(accountId))
-                throw new ArgumentNullException(nameof(accountId));
-            if (string.IsNullOrEmpty(UserReceive))
-                throw new ArgumentNullException(nameof(UserReceive));
-
             var formattedAmount = FormatAmount(amount);
 
             return new EventMessage
@@ -179,9 +169,27 @@ namespace fusion.bank.core
                 AccountId = accountId,
                 TransferType = transferType,
                 Amount = formattedAmount,
-                UserReceive = UserReceive,
+                UserReceive = userReceive,
                 Service = ServiceType.TRANSFER,
-                Details = $"Transferência de {formattedAmount} para a conta {UserReceive} realizada com sucesso!"
+                Details = $"Transferência de {formattedAmount} para a conta {userReceive} realizada com sucesso!"
+            };
+        }
+
+        public static EventMessage CreateTransferFailedEvent(string accountId, decimal amount, string userReceive, string account, string agency, TransferType transferType)
+        {
+            var formattedAmount = FormatAmount(amount);
+
+            return new EventMessage
+            {
+                Title = "Erro na transferência",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.TRANSFER_FAILED,
+                AccountId = accountId,
+                TransferType = transferType,
+                Amount = formattedAmount,
+                UserReceive = userReceive,
+                Service = ServiceType.TRANSFER,
+                Details = $"A transferência {transferType} para {userReceive}, conta {account} da agência {agency}, no valor de {amount}, não pôde ser concluída devido a um erro."
             };
         }
 
@@ -205,6 +213,29 @@ namespace fusion.bank.core
                 UserOwner = UserOwner,
                 Service = ServiceType.TRANSFER,
                 Details = $"Você recebeu uma transferência de {formattedAmount} enviada por {UserOwner}."
+            };
+        }
+
+        public static EventMessage CreateTransferProcessingEvent(string accountId, decimal amount, string UserOwner, TransferType transferType)
+        {
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentNullException(nameof(accountId));
+            if (string.IsNullOrEmpty(UserOwner))
+                throw new ArgumentNullException(nameof(UserOwner));
+
+            var formattedAmount = FormatAmount(amount);
+
+            return new EventMessage
+            {
+                Title = "Transferencia em processamento",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.TRANSFER_RECEIVE,
+                TransferType = transferType,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                UserOwner = UserOwner,
+                Service = ServiceType.TRANSFER,
+                Details = $"Sua transferencia {transferType} entrou em processamento, levará entre 10 a 60 segundos para ser concluída."
             };
         }
 
