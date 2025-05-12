@@ -30,6 +30,7 @@ namespace fusion.bank.core.Events
         public TransferType TransferType { get; set; }
         public string Amount { get; set; }
         public string Title { get; set; }
+        public bool Ready { get; set; }
 
         [BsonRepresentation(BsonType.String)]
         public ServiceType Service { get; set; } 

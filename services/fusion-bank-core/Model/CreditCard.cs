@@ -44,7 +44,17 @@ namespace fusion.bank.core.Model
         [BsonRepresentation(BsonType.String)]
         public CreditCardFlag CreditCardFlag { get; set; }
         public bool CreditCardTried { get; set; }
+        public bool CreditCardBlocked { get; set; }
         public int CreditCardTriedTimes { get; set; }
+        public List<VirtualCreditCard> VirtualCreditCards { get; set; } = [];
         public DateTime CreditCardNextAttempt { get; set; }
+    }
+
+    public class VirtualCreditCard
+    {
+        public Guid Id { get; set; }
+        public string CreditCardNumber { get; set; }
+        public string CreditCardName { get; set; }
+        public string CreditCardCode { get; set; }
     }
 }

@@ -18,9 +18,10 @@ namespace fusion.bank.events.repository
             eventCollection = dataBase.GetCollection<EventMessage>(configuration["CollectionName"]);
         }
 
-        public async Task<List<EventMessage>> ListEventById(string accountId, int limit = int.MaxValue)
+        public async Task<List<EventMessage>> ListEventById(string accountId, int limit)
         {
-            return await eventCollection.Find(d => d.AccountId == accountId).Limit(limit).ToListAsync();
+            var sort = Builders<EventMessage>.Sort.Descending(d => d.Date);
+            return await eventCollection.Find(d => d.AccountId == accountId).Limit(limit).Sort(sort).ToListAsync();
         }
 
         public async Task<List<EventMessage>> ListLastTransactions(string accountId, int limit = int.MaxValue)
@@ -35,6 +36,27 @@ namespace fusion.bank.events.repository
                 .Sort(sort)
                 .ToListAsync();
         }
+
+        public async Task<bool> MarkReady(Guid id)
+        {
+            var filter = Builders<EventMessage>.Filter.Eq(e => e.EventId, id);
+            var update = Builders<EventMessage>.Update.Set(d => d.Ready, true);
+
+            var response = await eventCollection.UpdateOneAsync(filter, update);
+
+            return response.ModifiedCount > 0;
+        }
+
+        public async Task<bool> MarkReadyAllByIds(Guid[] id)
+        {
+            var filter = Builders<EventMessage>.Filter.In(e => e.EventId, id);
+            var update = Builders<EventMessage>.Update.Set(d => d.Ready, true);
+
+            var response = await eventCollection.UpdateOneAsync(filter, update);
+
+            return response.ModifiedCount > 0;
+        }
+
 
         public async Task SaveEvent(EventMessage eventMessage)
         {

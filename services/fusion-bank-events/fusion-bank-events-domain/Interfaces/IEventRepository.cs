@@ -1,5 +1,4 @@
 ﻿using fusion.bank.core.Events;
-using fusion.bank.events.domain.Request;
 
 namespace fusion.bank.events.domain.Interfaces
 {
@@ -7,6 +6,8 @@ namespace fusion.bank.events.domain.Interfaces
     {
         Task<List<EventMessage>> ListEventById(string accountId, int limit);
         Task<List<EventMessage>> ListLastTransactions(string accountId, int limit = int.MaxValue);
+        Task<bool> MarkReady(Guid id);
+        Task<bool> MarkReadyAllByIds(Guid[] id);
         Task SaveEvent(EventMessage eventMessage);
     }
 }

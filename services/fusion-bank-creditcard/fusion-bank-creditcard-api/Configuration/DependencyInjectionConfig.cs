@@ -10,7 +10,7 @@ namespace fusion.bank.creditcard.api.Configuration
     {
         public static void AddDependencyInjection(this IServiceCollection services)
         {
-            services.AddScoped<ICreditCartRepository, CreditCardRepository>();
+            services.AddScoped<ICreditCardRepository, CreditCardRepository>();
 
             services.AddScoped<IGenerateCreditCardService, GenerateCreditCardService>();
 

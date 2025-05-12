@@ -14,15 +14,15 @@ namespace fusion.bank.creditCard.api.Controllers;
 [ApiController]
 [Route("[controller]")]
 //[Authorize]
-public class CreditBankController(ILogger<CreditBankController> logger, ICreditCartRepository creditCartRepository,
+public class CreditCardController(ILogger<CreditCardController> logger, ICreditCardRepository creditCardRepository,
     IRequestClient<NewAccountRequestInformation> requestClient, IRequestClient<NewCreditCardCreatedRequest> requestClientCreated,
     IPublishEndpoint publishEndpoint, IBackgroundTaskQueue backgroundTaskQueue,
     IGenerateCreditCardService generateCreditCardService) : MainController
 {
     [HttpGet("request-creditcard/{accountId:Guid}")]
-    public async Task<IActionResult> RequestCreditCard(Guid accountId)
+    public async Task<IActionResult> RequestCreditCard(Guid accountId, decimal limit)
     {
-        var creditCardExist = await creditCartRepository.GetTriedCard(accountId);
+        var creditCardExist = await creditCardRepository.ListCreditCardByAccountId(accountId);
 
         if (creditCardExist != null && creditCardExist.CreditCardTried)
         {
@@ -48,11 +48,10 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
             // Simular atraso de processamento (ex.: 5 segundos)
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
-            var (cardType, success) = DetermineCreditCardType(
+            var (cardType, success, suggestedLimit) = SuggestCreditCardAndLimit(
             creditCardRequestResponse.Message.Data.SalaryPerMonth,
             creditCardRequestResponse.Message.Data.AverageBudgetPerMonth,
-            creditCardRequestResponse.Message.Data.AccountType
-        );
+            creditCardRequestResponse.Message.Data.AccountType, limit);
 
             if (!success)
             {
@@ -60,11 +59,18 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
                 return;
             }
 
-            var creditCard = GetCreditCard(cardType, accountId);
+            var creditCard = GetCreditCard(cardType, accountId, suggestedLimit);
 
             if (creditCard is null)
             {
                 await SaveTriedCard(accountId, creditCardExist?.Id ?? Guid.Empty);
+                return;
+            }
+
+            if(creditCard.CreditCardType == creditCardExist?.CreditCardType && !string.IsNullOrEmpty(creditCardExist.CreditCardNumber))
+            {
+                await creditCardRepository.SaveTriedCard(creditCardExist);
+                await publishEndpoint.Publish(GenerateEvent.CreateCreditCardFailedEvent(accountId.ToString(), creditCard.CreditCardNextAttempt));
                 return;
             }
 
@@ -74,6 +80,8 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
             creditCard.CreditCardCode = generateInformations.CreditCardCode;
             creditCard.CreditCardValidity = DateTime.ParseExact(generateInformations.CreditCardValidity, "dd/MM/yyyy", null);
             creditCard.CreditCardName = creditCardRequestResponse.Message.Data.Name;
+            creditCard.CreditCardTried = true;
+            creditCard.CreditCardTriedTimes = 1;
 
             var creditCardCreated = await requestClientCreated.GetResponse<DataContractMessage<string>>(new NewCreditCardCreatedRequest { CreditCard = creditCard, AccountId = creditCard.AccountId });
 
@@ -83,9 +91,9 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
                 return;
             }
 
-            await publishEndpoint.Publish(GenerateEvent.CreateCreditCardResponsedEvent(accountId.ToString(), creditCard.CreditCardType.ToString(), creditCard.CreditCardNumber, creditCard.CreditCardLimit));
+            await publishEndpoint.Publish(GenerateEvent.CreateCreditCardResponsedEvent(accountId.ToString(), creditCard.CreditCardType.ToString(), creditCard.CreditCardNumber, creditCard.CreditCardLimit), cancellationToken);
 
-            await creditCartRepository.SaveTriedCard(creditCard);
+            await creditCardRepository.SaveTriedCard(creditCard);
 
         });
 
@@ -96,51 +104,175 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
         });
     }
 
+    [HttpGet("request-virtual-creditcard/{id:Guid}")]
+    public async Task<IActionResult> RequestVirtualCreditCard(Guid id)
+    {
+        var creditCard = await creditCardRepository.ListCreditCardById(id);
+
+        if(creditCard == null || string.IsNullOrEmpty(creditCard.CreditCardNumber))
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = false }, "Nenhum cartao encontrado para essa conta");
+        }
+
+        if(creditCard.VirtualCreditCards.Count == 1)
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = false }, "Limite máximo de cartao virtual atingido.");
+        }
+
+        var generateInformations = await generateCreditCardService.GenerateCreditCard(creditCard.CreditCardFlag);
+
+        var virtualCreditCard = new VirtualCreditCard { CreditCardNumber = generateInformations.CreditCardNumber, 
+                                    CreditCardCode = generateInformations.CreditCardCode, CreditCardName = creditCard.CreditCardName, Id = Guid.NewGuid() };
+
+        creditCard.VirtualCreditCards.Add(virtualCreditCard);
+
+        await creditCardRepository.SaveTriedCard(creditCard);
+
+        await publishEndpoint.Publish(GenerateEvent.CreateCreditCardResponsedEvent(creditCard.AccountId.ToString(), creditCard.CreditCardType.ToString(), creditCard.CreditCardNumber, creditCard.CreditCardLimit));
+
+        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = true });
+    }
+
+    [HttpPut("creditcard-toggle-blocked/{id:Guid}")]
+    public async Task<IActionResult> RequestVirtualCreditCard(Guid id, bool isBlocked)
+    {
+        var creditCard = await creditCardRepository.ListCreditCardById(id);
+
+        if (creditCard == null || string.IsNullOrEmpty(creditCard.CreditCardNumber))
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = false }, "Nenhum cartao encontrado para essa conta");
+        }
+
+        var update = await creditCardRepository.ToggleBlockdCard(id, isBlocked);
+
+        creditCard.CreditCardBlocked = update ? isBlocked : creditCard.CreditCardBlocked;
+
+        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = update });
+    }
+
+    [HttpDelete("virtual-creditcard-delete/{id:Guid}")]
+    public async Task<IActionResult> VirtualCreditCardDelete(Guid id)
+    {
+        var creditCard = await creditCardRepository.ListCreditCardById(id);
+
+        if (creditCard == null || string.IsNullOrEmpty(creditCard.CreditCardNumber))
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = false }, "Nenhum cartao encontrado para essa conta");
+        }
+
+        var update = await creditCardRepository.VirtaulCreditCardDelete(id);
+
+        creditCard.VirtualCreditCards = update ? [] : creditCard.VirtualCreditCards;
+
+        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = update });
+    }
+
+
     [HttpGet("list-all-creditcards")]
     public async Task<IActionResult> ListAllCreditCards()
     {
-        return CreateResponse(new DataContractMessage<IEnumerable<CreditCard>> { Data = await creditCartRepository.ListAllCreditCards(), Success = true });
+        return CreateResponse(new DataContractMessage<IEnumerable<CreditCard>> { Data = await creditCardRepository.ListAllCreditCards(), Success = true });
     }
 
-    private (CreditCardType, bool) DetermineCreditCardType(decimal salaryPerMonth, decimal averageBudgetPerMonth, AccountType accountType)
+    [HttpGet("list-credicard-by-id/{accountId}")]
+    public async Task<IActionResult> ListCreditCardById(Guid accountId)
     {
+        var creditCard = await creditCardRepository.ListCreditCardByAccountId(accountId);
+
+        if (creditCard == null)
+        {
+            return CreateResponse(new DataContractMessage<string> { Success = false }, "Nenhum cartao de credito encontrado");
+        }
+
+        return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = true });
+    }
+
+    private (CreditCardType, bool, decimal) SuggestCreditCardAndLimit(decimal salaryPerMonth, decimal averageBudgetPerMonth, AccountType accountType, decimal suggestedLimit)
+    {
+        CreditCardType cardType = CreditCardType.STANDARD;
+        bool isLimitFullyAccepted = true;
+        decimal approvedLimit;
+
+        // Função auxiliar para calcular o limite ajustado
+        decimal CalculateAdjustedLimit(decimal minLimit, decimal maxLimit, decimal influenceFactor)
+        {
+            // Garante que o limite sugerido esteja dentro da faixa mínima e máxima
+            decimal boundedLimit = Math.Max(minLimit, Math.Min(suggestedLimit, maxLimit));
+            // Combina o limite sugerido (com peso) e o limite máximo (com peso complementar)
+            return boundedLimit * influenceFactor + maxLimit * (1 - influenceFactor);
+        }
+
+        // Verifica os critérios para cada tipo de cartão
         if (salaryPerMonth >= 15000m && averageBudgetPerMonth >= 10000m && accountType == AccountType.BusinessAccount)
         {
-            return (CreditCardType.INFINITE, true);
+            cardType = CreditCardType.INFINITE;
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 10000m,
+                maxLimit: Math.Min(averageBudgetPerMonth * 0.5m, 50000m),
+                influenceFactor: 0.9m
+            );
         }
-
         else if (salaryPerMonth >= 15000m && averageBudgetPerMonth >= 6000m)
         {
-            return (CreditCardType.BLACK, true);
+            cardType = CreditCardType.BLACK;
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 5000m,
+                maxLimit: Math.Min(salaryPerMonth * 0.4m, 30000m),
+                influenceFactor: 0.8m
+            );
         }
-
         else if (salaryPerMonth >= 6000m && averageBudgetPerMonth >= 2000m)
         {
-            return (CreditCardType.PLATINUM, true);
+            cardType = CreditCardType.PLATINUM;
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 3000m,
+                maxLimit: Math.Min(salaryPerMonth * 0.3m, 15000m),
+                influenceFactor: 0.7m
+            );
         }
-
         else if (salaryPerMonth >= 3000m && averageBudgetPerMonth >= 1000m)
         {
-            return (CreditCardType.GOLD, true);
+            cardType = CreditCardType.GOLD;
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 2000m,
+                maxLimit: Math.Min(salaryPerMonth * 0.25m, 10000m),
+                influenceFactor: 0.6m
+            );
         }
-
         else if (salaryPerMonth >= 1600m)
         {
-            return (CreditCardType.STANDARD, true);
+            cardType = CreditCardType.STANDARD;
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 1000m,
+                maxLimit: Math.Min(salaryPerMonth * 0.2m, 5000m),
+                influenceFactor: 0.5m
+            );
+        }
+        else
+        {
+            isLimitFullyAccepted = false;
+            decimal maxLimit = accountType == AccountType.BusinessAccount
+                ? Math.Min(averageBudgetPerMonth * 0.1m, 2000m)
+                : Math.Min(salaryPerMonth * 0.15m, 2000m);
+            approvedLimit = CalculateAdjustedLimit(
+                minLimit: 500m,
+                maxLimit: maxLimit,
+                influenceFactor: 0.3m
+            );
         }
 
-        return (CreditCardType.STANDARD, false);
+        return (cardType, isLimitFullyAccepted, approvedLimit);
     }
 
-    private CreditCard GetCreditCard(CreditCardType creditCardType, Guid accountId)
+    private CreditCard GetCreditCard(CreditCardType creditCardType, Guid accountId, decimal suggestedLimit)
     {
         var cardMappings = new Dictionary<CreditCardType, CreditCard>
             {
-                { CreditCardType.STANDARD, new CreditCard { CreditCardType = CreditCardType.STANDARD, CreditCardLimit = 500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardTried = true, CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
-                { CreditCardType.GOLD, new CreditCard { CreditCardType = CreditCardType.GOLD, CreditCardLimit = 1500m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
-                { CreditCardType.PLATINUM, new CreditCard { CreditCardType = CreditCardType.PLATINUM, CreditCardLimit = 3000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
-                { CreditCardType.BLACK, new CreditCard { CreditCardType = CreditCardType.BLACK, CreditCardLimit = 8000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
-                { CreditCardType.INFINITE, new CreditCard { CreditCardType = CreditCardType.INFINITE, CreditCardLimit = 20000m, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } }
+                { CreditCardType.STANDARD, new CreditCard { CreditCardType = CreditCardType.STANDARD, CreditCardLimit = suggestedLimit, AccountId = accountId, Id = Guid.NewGuid(), CreditCardTried = true, CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.GOLD, new CreditCard { CreditCardType = CreditCardType.GOLD, CreditCardLimit = suggestedLimit, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.PLATINUM, new CreditCard { CreditCardType = CreditCardType.PLATINUM, CreditCardLimit = suggestedLimit, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.BLACK, new CreditCard { CreditCardType = CreditCardType.BLACK, CreditCardLimit = suggestedLimit, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } },
+                { CreditCardType.INFINITE, new CreditCard { CreditCardType = CreditCardType.INFINITE, CreditCardLimit = suggestedLimit, AccountId = accountId, Id = Guid.NewGuid(), CreditCardNextAttempt = DateTime.Now.AddMinutes(5), CreditCardUsed = 0 } }
             };
 
         return cardMappings.TryGetValue(creditCardType, out var creditCard) ? creditCard : null;
@@ -162,6 +294,8 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
         {
             creditCard.CreditCardNextAttempt = DateTime.Now.AddMinutes(15);
         }
+
+        creditCard.CreditCardTried = true;
     }
 
     private DateTime CalculateNextAttempt(int triedTimes)
@@ -178,7 +312,7 @@ public class CreditBankController(ILogger<CreditBankController> logger, ICreditC
     {
         var saveCreditCard = new CreditCard { CreditCardTriedTimes = 1, CreditCardNextAttempt = CalculateNextAttempt(1), AccountId = accountId, Id = cardExist == Guid.Empty ? Guid.NewGuid() : cardExist, CreditCardTried = true };
 
-        await creditCartRepository.SaveTriedCard(saveCreditCard);
+        await creditCardRepository.SaveTriedCard(saveCreditCard);
 
         await publishEndpoint.Publish(GenerateEvent.CreateCreditCardFailedEvent(accountId.ToString(), saveCreditCard.CreditCardNextAttempt));
 
