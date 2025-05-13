@@ -8,7 +8,7 @@ using fusion.bank.deposit.domain.Requests;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
-namespace fusion_bank_deposit_api.Controllers;
+namespace fusion.bank.deposit.api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -17,7 +17,7 @@ public class DepositController(IDepositRepository depositRepository,
 {
    
     [HttpPost("generate-billet")]
-    public async Task<IActionResult> GenerateBillet(BilletRequest billetRequest)
+    public async Task<IActionResult> GenerateBillet(DepositBilletRequest billetRequest)
     {
         var deposit = new Deposit();
 
@@ -27,14 +27,22 @@ public class DepositController(IDepositRepository depositRepository,
 
         await bus.Publish(GenerateEvent.CreateBilletGeneratedEvent(billetRequest.AccountId.ToString(), deposit.CodeGenerate));
 
-        return CreateResponse(new DataContractMessage<Deposit>() { Data = deposit, Success = true});
+        return CreateResponse(new DataContractMessage<string>() { Data = deposit.CodeGenerate, Success = true});
     }
 
-    [HttpGet("get-billet-by-id/id:guid")]
-    public async Task<IActionResult> GenerateBillet(Guid id)
+    [HttpGet("get-billet-by-id/{billetCode}")]
+    public async Task<IActionResult> GenerateBillet(string billetCode)
     {
-        return Ok(await depositRepository.GetDepositById(id));
+        var deposit = await depositRepository.GetDepositByCode(billetCode);
+
+        if (deposit is null)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto nao existe ou nao foi registrado ainda.");
+        }
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Data = deposit, Success = true });
     }
+
 
     [HttpGet("list-all-billets")]
     public async Task<IActionResult> ListAllBillets()
@@ -42,31 +50,51 @@ public class DepositController(IDepositRepository depositRepository,
         return Ok(await depositRepository.ListAllBillets());
     }
 
-    [HttpGet("deposit/id:guid")]
-    public async Task<IActionResult> Depositbillet(Guid id)
+    [HttpGet("deposit-billet/{codeBillet}")]
+    public async Task<IActionResult> Depositbillet(string codeBillet)
     {
-        var billet = await depositRepository.GetDepositById(id);
+        var deposit = await depositRepository.GetDepositByCode(codeBillet);
 
-        if(billet is null)
+        if(deposit is null)
         {
             return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Nenhum boleto foi encontrado.");
         }
 
-        if (billet.Debited)
+        if (deposit.Debited)
         {
-            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto já foi depositado.");
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto já foi pago.");
 
         }
 
-        if (billet.DateExpiration < DateTime.Now)
+        if (deposit.DateExpiration < DateTime.Now)
         {
             return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto expirado, tente novamente mais tarde.");
         }
 
-        await bus.Publish(new NewDepositAccountProducer(billet.AccountId, billet.DepositId, billet.AccountNumber, billet.Amount));
+        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description));
 
-        await bus.Publish(GenerateEvent.CreateDepositEvent(billet.AccountId.ToString(), billet.Amount, TransferType.BOLETO));
+        await bus.Publish(GenerateEvent.CreateDepositEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
 
         return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Depositamos seu boleto. Entre 1 a 30 min seu dinheira cairá na sua conta.");
+    }
+
+    [HttpPost("direct-deposit")]
+    public async Task<IActionResult> DirectDeposit(DirectDeposit directDeposit)
+    {
+
+        if (directDeposit.Amount <= 0)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Valor inválido.");
+        }
+
+        var deposit = new Deposit();
+
+        deposit.GenerateDepositDirect(directDeposit);
+
+        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description));
+
+        await bus.Publish(GenerateEvent.CreateDepositEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Deposito recebido! Entre 5 a 10 min seu dinheira cairá na sua conta.");
     }
 }

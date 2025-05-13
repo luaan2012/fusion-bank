@@ -17,8 +17,6 @@ namespace fusion.bank.central.service
                 return;
             }
 
-            //await Task.Delay(8000);
-
             var accountUpdate = bankAccount.Accounts.FirstOrDefault(d => d.AccountId == context.Message.AccountId);
 
             if(accountUpdate is null)

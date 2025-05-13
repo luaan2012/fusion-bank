@@ -21,6 +21,11 @@ namespace fusion.deposit.deposit.repository
             return (await depositCollection.FindAsync(d => d.DepositId == id)).FirstOrDefault();
         }
 
+        public async Task<Deposit> GetDepositByCode(string codeBillet)
+        {
+            return (await depositCollection.FindAsync(d => d.CodeGenerate == codeBillet)).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<Deposit>> ListAllBillets()
         {
             return await depositCollection.AsQueryable().ToListAsync();

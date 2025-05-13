@@ -18,11 +18,11 @@ namespace fusion.bank.account.service
                 return;
             }
 
-            //await Task.Delay(new Random().Next(5, 30) * 1000);
-
             account.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DataContractMessage<DepositedCentralResponse>>(new NewDepositCentralRequest(context.Message.AccountId, context.Message.DepositId, context.Message.AccountNumber, account.Balance));
+            var response = await requestClient.GetResponse<DataContractMessage<DepositedCentralResponse>>(
+                new NewDepositCentralRequest(context.Message.AccountId, context.Message.DepositId, context.Message.AccountNumberReceiver, 
+                context.Message.AgencyNumberReceiver, account.Balance));
 
             if (!response.Message.Success)
             {

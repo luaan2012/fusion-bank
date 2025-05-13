@@ -3,7 +3,7 @@
 
     public class NewDepositCentralRequest
     {
-        public NewDepositCentralRequest(Guid accountId, Guid depositId, string accountNumber, decimal amount)
+        public NewDepositCentralRequest(Guid accountId, Guid depositId, string accountNumber, string agencyNumber, decimal amount)
         {
             AccountId = accountId;
             DepositId = depositId;
