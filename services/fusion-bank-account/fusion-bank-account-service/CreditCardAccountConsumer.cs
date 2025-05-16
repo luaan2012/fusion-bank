@@ -7,7 +7,7 @@ using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewCreditCardccountConsumer(IAccountRepository accountRepository) : IConsumer<NewAccountRequestInformation>
+    public class CreditCardAccountConsumer(IAccountRepository accountRepository) : IConsumer<NewAccountRequestInformation>
     {
         public async Task Consume(ConsumeContext<NewAccountRequestInformation> context)
         {

@@ -1,5 +1,6 @@
 ﻿using fusion.bank.core.Enum;
 using fusion.bank.core.Helpers;
+using fusion.bank.deposit.domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,6 +10,8 @@ namespace fusion.bank.core.Model
     {
         [BsonId]
         public Guid AccountId { get; internal set; }
+        public DateTime BirthDate { get; internal set; }
+        public string PhoneNumber { get; internal set; }
         public string Name { get; internal set; }
         public string LastName { get; internal set; }
         public string FullName { get; private set; }
@@ -19,8 +22,12 @@ namespace fusion.bank.core.Model
         public string Agency { get; internal set; }
         public decimal Balance { get; internal set; }
         public decimal TransferLimit { get; internal set; }
-        public decimal SalaryPerMonth { get; private set; }
+        public decimal ExpensePerDay { get; internal set; }
+        public decimal ExpenseDay { get; internal set; }
+        public decimal SalaryPerMonth {  get; internal set; }
+        public decimal AverageBudgetPerMonth => SumAverage();
         public List<CreditCard> CreditCards { get; set; }
+        public List<ExpenseAccount> ExpenseAccounts { get; set; } = [];
 
         [BsonRepresentation(BsonType.String)]
         public AccountType AccountType { get; set; }
@@ -30,6 +37,9 @@ namespace fusion.bank.core.Model
 
         [BsonRepresentation(BsonType.String)]
         public DocumentType DocumentType { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
+        public KeyType KeyTypePix { get; set; }
         public string Document { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
@@ -44,7 +54,7 @@ namespace fusion.bank.core.Model
             SalaryPerMonth = salary;
             AccountNumber = RandomHelper.GenerateRandomNumbers(8);
             Agency = $"00{RandomHelper.GenerateRandomNumbers(2)}";
-            Status = StatusAccount.Pendent;
+            Status = StatusAccount.PENDENT;
             AccountType = accountType;
             BankISBP = BankIspb;
             DocumentType = documentType;
@@ -68,6 +78,23 @@ namespace fusion.bank.core.Model
             };
         }
 
+        internal decimal SumAverage()
+        {
+            var gastosMes = ExpenseAccounts
+            .GroupBy(e => new { e.Date.Year, e.Date.Month })
+            .Select(g => new
+            {
+                Ano = g.Key.Year,
+                Mes = g.Key.Month,
+                TotalMes = g.Sum(e => e.Amount)
+            });
+
+            var totalGasto = gastosMes.Sum(g => g.TotalMes);
+            var quantidadeMeses = gastosMes.Count();
+
+            return quantidadeMeses > 0 ? totalGasto / quantidadeMeses : 0;
+        }
+
         public void Debit(decimal amount)
         {
             if(amount <= 0)
@@ -80,6 +107,7 @@ namespace fusion.bank.core.Model
                 Console.WriteLine("Insufficient funds.");
             }
 
+            ExpenseDay += amount;
             Balance -= amount;            
         }
 
@@ -93,15 +121,21 @@ namespace fusion.bank.core.Model
             Balance += amount;
         }
 
+
+        public void AddExpense(DateTime date, decimal amount, ExpenseCategory expenseCategory)
+        {
+            ExpenseAccounts.Add(new ExpenseAccount { ExpenseCategory = expenseCategory, Amount = amount, Date = date });
+        }
+
         public void Block()
         {
-            Status = StatusAccount.Blocked;
+            Status = StatusAccount.BLOCKED;
             Console.WriteLine("Account has been blocked.");
         }
 
         public void Active()
         {
-            Status = StatusAccount.Active;
+            Status = StatusAccount.ACTIVE;
             Console.WriteLine("Account has been blocked.");
         } 
         
@@ -109,5 +143,12 @@ namespace fusion.bank.core.Model
         {
             BankName = bankName;
         }
+    }
+
+    public class ExpenseAccount
+    {
+        public ExpenseCategory ExpenseCategory { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
     }
 }

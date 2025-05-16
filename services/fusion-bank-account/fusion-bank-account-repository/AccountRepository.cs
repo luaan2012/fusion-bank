@@ -40,11 +40,11 @@ namespace fusion.bank.account.repository
             return (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
         }
 
-        public async Task<Account> EditAccountByKey(string keyAccount, AccountEditRequest accountEditRequest)
+        public async Task<Account> EditAccount(Guid accountId, AccountEditRequest accountEditRequest)
         {
-            var filter = Builders<Account>.Filter.Eq(x => x.KeyAccount, keyAccount);
+            var filter = Builders<Account>.Filter.Eq(x => x.AccountId, accountId);
 
-            var account = (await accountCollection.FindAsync(d => d.KeyAccount == keyAccount)).FirstOrDefault();
+            var account = (await accountCollection.FindAsync(d => d.AccountId == accountId)).FirstOrDefault();
 
             if(account == null) return null;
 
@@ -76,7 +76,7 @@ namespace fusion.bank.account.repository
 
             if (account == null) return null;
 
-            var update = Builders<Account>.Update.Set(d => d.KeyAccount, null);
+            var update = Builders<Account>.Update.Set(d => d.KeyAccount, string.Empty).Set(d => d.KeyTypePix, KeyType.CPF);
 
             await accountCollection.FindOneAndUpdateAsync<Account>(filter, update);
 
@@ -122,10 +122,10 @@ namespace fusion.bank.account.repository
             await accountCollection.InsertOneAsync(account);
         }
 
-        public async Task SaveKeyByAccount(Guid idAccount, string keyAccount)
+        public async Task SaveKeyByAccount(RegisterKeyRequest registerKey)
         {
-            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, idAccount);
-            var update = Builders<Account>.Update.Set(d => d.KeyAccount, keyAccount);
+            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, registerKey.AccountId);
+            var update = Builders<Account>.Update.Set(d => d.KeyAccount, registerKey.KeyPix).Set(e => e.KeyTypePix, registerKey.KeyTypePix);
 
             await accountCollection.UpdateOneAsync(filter, update);
         }

@@ -7,7 +7,7 @@ using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewDepositAccountConsumer(IAccountRepository accountRepository, IPublishEndpoint bus, IRequestClient<NewDepositCentralRequest> requestClient) : IConsumer<NewDepositAccountProducer>
+    public class DepositAccountConsumer(IAccountRepository accountRepository, IPublishEndpoint bus, IRequestClient<TransactionCentralRequest> requestClient) : IConsumer<NewDepositAccountProducer>
     {
         public async Task Consume(ConsumeContext<NewDepositAccountProducer> context)
         {
@@ -19,10 +19,11 @@ namespace fusion.bank.account.service
             }
 
             account.Credit(context.Message.Amount);
+            account.AddExpense(DateTime.Now, context.Message.Amount, context.Message.ExpenseCategory);
 
-            var response = await requestClient.GetResponse<DataContractMessage<DepositedCentralResponse>>(
-                new NewDepositCentralRequest(context.Message.AccountId, context.Message.DepositId, context.Message.AccountNumberReceiver, 
-                context.Message.AgencyNumberReceiver, account.Balance));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new TransactionCentralRequest(account.AccountId, 
+                account.Balance, AccountReceiver: account.AccountNumber, AgencyReceiver: account.Agency, UpdateReceiver: true));
+
 
             if (!response.Message.Success)
             {
@@ -31,7 +32,7 @@ namespace fusion.bank.account.service
 
             await accountRepository.UpdateAccount(account);
 
-            await bus.Publish(new DepositedAccountProducer(context.Message.DepositId, true));
+            await bus.Publish(new DepositedAccountProducer(context.Message.DepositId, context.Message.AccountId, null, true));
         }
     }
 }

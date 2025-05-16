@@ -34,11 +34,16 @@ namespace fusion.bank.account.Controllers
 
             await accountRepository.SaveAccount(account);
 
-            await bus.Publish(new NewAccountProducer(account.AccountId,
+            var response = await requestClient.GetResponse<DataContractMessage<CreatedAccountResponse>>(new NewAccountProducer(account.AccountId,
                 account.Name, account.LastName, account.FullName, account.AccountNumber, account.Agency,
                 account.Balance, account.TransferLimit, account.SalaryPerMonth,
                 account.AccountType, account.BankISBP, account.KeyAccount
             ));
+
+            if(!response.Message.Success)
+            {
+                return CreateResponse(response.Message);
+            }
 
             var token = AutenticationService.GenerateJwtToken(account, configuration);
 
@@ -86,10 +91,11 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(keyAccount), Success = true });
         }
 
-        [HttpPut("edit-account/{key}")]
-        public async Task<IActionResult> EditAccountByKey(string keyAccountt, AccountEditRequest accountEditRequest)
+        [AllowAnonymous]
+        [HttpPut("edit-account/{accountId}")]
+        public async Task<IActionResult> EditAccount(Guid accountId, AccountEditRequest accountEditRequest)
         {
-            var response = await accountRepository.EditAccountByKey(keyAccountt, accountEditRequest);
+            var response = await accountRepository.EditAccount(accountId, accountEditRequest);
 
             if(response is null) return CreateResponse(new DataContractMessage<Account> { Success = false }, "Aconteceu um erro ao tentar atualizar a sua conta, tente novamente mais tarde.");
 
@@ -136,28 +142,21 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(new DataContractMessage<string> { Success = true }, "DarkMode atualizado com sucesso");
         }
 
-        [HttpPost("register-key-account/{id}/{key}")]
-        public async Task<IActionResult> ListAccountById(Guid id, string keyAccount)
+        [HttpPost("register-key-account")]
+        public async Task<IActionResult> ListAccountById(RegisterKeyRequest registerKey)
         {
-            var account = await accountRepository.ListAccountById(id);
+            var account = await accountRepository.ListAccountById(registerKey.AccountId);
 
             if(account is null)
             {
                 return CreateResponse(new DataContractMessage<string> { Success = false}, "Account not found");
             }
 
-            var response = await requestClient.GetResponse<DataContractMessage<CreatedKeyAccountResponse>>(new NewKeyAccountRequest(account.AccountId, keyAccount));
+            await accountRepository.SaveKeyByAccount(registerKey);
 
-            if(!response.Message.Success)
-            {
-                return CreateResponse(new DataContractMessage<string> { Success = false, Error = response.Message.Error });
-            }
-            
-            await accountRepository.SaveKeyByAccount(id, keyAccount);
+            await publishEndpoint.Publish(GenerateEvent.CreateKeyCreatedEvent(account.AccountId.ToString(), registerKey.KeyPix));
 
-            await publishEndpoint.Publish(GenerateEvent.CreateKeyCreatedEvent(account.AccountId.ToString(), keyAccount));
-
-            return CreateResponse(new DataContractMessage<string> { Success = true });
+            return CreateResponse(new DataContractMessage<string> { Success = true }, "Chave Criada");
         }
 
     }

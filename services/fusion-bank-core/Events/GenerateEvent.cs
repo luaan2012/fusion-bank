@@ -359,7 +359,26 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateDepositEvent(string accountId, decimal amount, TransferType transferType)
+        public static EventMessage CreateDepositCreateEvent(string accountId, decimal amount, TransferType transferType)
+        {
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentNullException(nameof(accountId));
+
+            var formattedAmount = FormatAmount(amount);
+            return new EventMessage
+            {
+                Title = "Deposito recebido",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.DEPOSIT_CREATED,
+                TransferType = transferType,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                Service = ServiceType.DEPOSIT,
+                Details = $"Depósito de {formattedAmount} creditado em sua conta com sucesso."
+            };
+        }
+
+        public static EventMessage CreateDepositCreatedEvent(string accountId, decimal amount, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -369,12 +388,12 @@ namespace fusion.bank.core
             {
                 Title = "Pagamento de boleto",
                 Date = DateTime.UtcNow,
-                Action = NotificationType.DEPOSIT,
+                Action = NotificationType.DEPOSIT_CREATE,
                 TransferType = transferType,
                 AccountId = accountId,
                 Amount = formattedAmount,
                 Service = ServiceType.DEPOSIT,
-                Details = $"Depósito de {formattedAmount} realizado com sucesso em sua conta. Entre 1 a 30 min o valor será creditado."
+                Details = $"Depósito de {formattedAmount} recebido com sucesso em sua conta. Entre 1 a 30 min o valor será creditado."
             };
         }
     }

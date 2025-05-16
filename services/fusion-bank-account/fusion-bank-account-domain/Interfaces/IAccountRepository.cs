@@ -11,13 +11,13 @@ namespace fusion.bank.account.domain.Interfaces
         Task<Account> ListAccountByNumberAgencyAccount(string accountNumber, string agencyNumber);
         Task<Account> ListAccountByNumberAccount(string accountNumber);
         Task<Account> GetAccountPerTypeAndPassoword(LoginRequest loginRequest);
-        Task<Account> EditAccountByKey(string keyAccount, AccountEditRequest accountEditRequest);
+        Task<Account> EditAccount(Guid accountId, AccountEditRequest accountEditRequest);
         Task<Account> DeleteKeyAccount(Guid accountId);
         Task<Account> EditKeyAccount(Guid accountId, string keyAccount);
         Task UpdateAccount(Account account);
         Task<bool> DeleteAccount(Guid accountId);
         Task<Account> ListAccountByKey(string keyAccount);
-        Task SaveKeyByAccount(Guid idAccount, string keyAccount);
+        Task SaveKeyByAccount(RegisterKeyRequest registerKey);
         Task SetDarkMode(Guid idAccount, bool darkMode);
     }
 }

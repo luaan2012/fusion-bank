@@ -4,7 +4,7 @@ using MassTransit;
 
 namespace fusion.bank.central.service
 {
-    public class NewAccountCentralConsumer(IPublishEndpoint bus, IBankRepository bankRepository) : IConsumer<NewAccountProducer>
+    public class AccountCentralConsumer(IBankRepository bankRepository) : IConsumer<NewAccountProducer>
     {
         public async Task Consume(ConsumeContext<NewAccountProducer> context)
         {
@@ -21,7 +21,7 @@ namespace fusion.bank.central.service
 
             await bankRepository.UpdateBank(bankAccount);
 
-            await bus.Publish(new CreatedAccountProducer(context.Message.AccountId, context.Message.Name, context.Message.LastName, context.Message.FullName, context.Message.AccountNumber,
+            await context.RespondAsync(new CreatedAccountResponse(context.Message.AccountId, context.Message.Name, context.Message.LastName, context.Message.FullName, context.Message.AccountNumber,
                 context.Message.Balance, context.Message.TransferLimit, context.Message.SalaryPerMonth, context.Message.AccountType, bankAccount.ISPB, bankAccount.Name));
         }
     }

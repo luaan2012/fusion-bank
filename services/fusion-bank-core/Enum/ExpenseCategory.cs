@@ -1,6 +1,6 @@
 ﻿namespace fusion.bank.deposit.domain
 {
-    public enum BilletType
+    public enum ExpenseCategory
     {
         SHOPPING,
         ENTERTEIMANT,

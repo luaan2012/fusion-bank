@@ -11,10 +11,8 @@ namespace fusion.bank.central.api.Configuration
             {
                 busCfg.SetKebabCaseEndpointNameFormatter();
 
-                busCfg.AddConsumer<NewAccountCentralConsumer>();
-                busCfg.AddConsumer<NewDepositCentralConsumer>();
-                busCfg.AddConsumer<NewTransferCentralConsumer>();
-                busCfg.AddConsumer<NewKeyAccountCentralConsumer>();
+                busCfg.AddConsumer<AccountCentralConsumer>();
+                busCfg.AddConsumer<TransactionCentralConsumer>();
 
                 busCfg.UsingRabbitMq((ctx, cfg) =>
                 {

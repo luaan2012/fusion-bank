@@ -1,4 +1,5 @@
-﻿using fusion.bank.core.Messages.Requests;
+﻿using fusion.bank.account.service;
+using fusion.bank.core.Messages.Requests;
 using MassTransit;
 
 namespace fusion.bank.creditcard.api.Configuration
@@ -13,6 +14,8 @@ namespace fusion.bank.creditcard.api.Configuration
 
                 busCfg.AddRequestClient<NewAccountRequestInformation>();
                 busCfg.AddRequestClient<NewCreditCardCreatedRequest>();
+
+                busCfg.AddConsumer<CreditCardTransactionConsumer>();
 
                 busCfg.UsingRabbitMq((ctx, cfg) =>
                 {

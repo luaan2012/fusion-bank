@@ -9,7 +9,8 @@ namespace fusion.bank.events.repository
     public class EventRepository : IEventRepository
     {
         private readonly IMongoCollection<EventMessage> eventCollection;
-        private NotificationType[] lastTransactions = [NotificationType.TRANSFER_MADE, NotificationType.TRANSFER_SCHEDULED, NotificationType.TRANSFER_RECEIVE, NotificationType.DEPOSIT];
+        private NotificationType[] lastTransactions = [NotificationType.TRANSFER_MADE, 
+            NotificationType.TRANSFER_SCHEDULED, NotificationType.TRANSFER_RECEIVE, NotificationType.DEPOSIT_CREATE, NotificationType.DEPOSIT_CREATED];
 
         public EventRepository(IConfiguration configuration)
         {

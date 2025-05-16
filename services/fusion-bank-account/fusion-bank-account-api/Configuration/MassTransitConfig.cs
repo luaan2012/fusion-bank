@@ -12,17 +12,19 @@ namespace fusion.bank.account.api.Configuration
             {
                 busCfg.SetKebabCaseEndpointNameFormatter();
 
-                busCfg.AddConsumer<CreatedAccountConsumer>();
-                busCfg.AddConsumer<NewDepositAccountConsumer>();
-                busCfg.AddConsumer<NewTransferAccountConsumer>();
-                busCfg.AddConsumer<NewCreditCardccountConsumer>();
-                busCfg.AddConsumer<NewCreditCardCreatedAccountConsumer>();
-                busCfg.AddConsumer<NewInvestmentRequestConsumer>();
-                busCfg.AddConsumer<NewInvestmentRequestPutConsumer>();
+                busCfg.AddConsumer<CreditCardCreatedAccountConsumer>();
+                busCfg.AddConsumer<DepositAccountConsumer>();
+                busCfg.AddConsumer<TransferAccountConsumer>();
+                busCfg.AddConsumer<CreditCardAccountConsumer>();
+                busCfg.AddConsumer<CreditCardCreatedAccountConsumer>();
+                busCfg.AddConsumer<InvestmentRequestConsumer>();
+                busCfg.AddConsumer<InvestmentRequestPutConsumer>();
+                busCfg.AddConsumer<TransactionConsumer>();
 
                 busCfg.AddRequestClient<NewDepositCentralRequest>();
-                busCfg.AddRequestClient<NewTransferCentralRequest>();
+                busCfg.AddRequestClient<TransactionCentralRequest>();
                 busCfg.AddRequestClient<NewKeyAccountRequest>();
+                busCfg.AddRequestClient<CreditCardTransactionRequest>();
 
                 busCfg.UsingRabbitMq((ctx, cfg) =>
                 {

@@ -2,6 +2,7 @@ using fusion.bank.core;
 using fusion.bank.core.Enum;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
+using fusion.bank.core.Messages.Requests;
 using fusion.bank.deposit.domain.Interfaces;
 using fusion.bank.deposit.domain.Models;
 using fusion.bank.deposit.domain.Requests;
@@ -15,7 +16,31 @@ namespace fusion.bank.deposit.api.Controllers;
 public class DepositController(IDepositRepository depositRepository, 
     ILogger<DepositController> logger, IPublishEndpoint bus) : MainController
 {
-   
+    
+    [HttpPost("deposit-billet")]
+    public async Task<IActionResult> Depositbillet(DepositRequest depositRequest)
+    {
+        var deposit = await depositRepository.GetDepositByCode(depositRequest.Code);
+
+        if (deposit is null)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Nenhum boleto foi encontrado.");
+        }
+
+        if (deposit.Debited)
+        {
+            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto já foi pago.");
+
+        }
+
+        await bus.Publish(new TransactionRequest(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.BilletType, depositRequest.PaymentType));
+
+        await bus.Publish(GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Boleto pago com sucesso.");
+    }
+
+
     [HttpPost("generate-billet")]
     public async Task<IActionResult> GenerateBillet(DepositBilletRequest billetRequest)
     {
@@ -50,33 +75,6 @@ public class DepositController(IDepositRepository depositRepository,
         return Ok(await depositRepository.ListAllBillets());
     }
 
-    [HttpGet("deposit-billet/{codeBillet}")]
-    public async Task<IActionResult> Depositbillet(string codeBillet)
-    {
-        var deposit = await depositRepository.GetDepositByCode(codeBillet);
-
-        if(deposit is null)
-        {
-            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Nenhum boleto foi encontrado.");
-        }
-
-        if (deposit.Debited)
-        {
-            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto já foi pago.");
-
-        }
-
-        if (deposit.DateExpiration < DateTime.Now)
-        {
-            return CreateResponse(new DataContractMessage<Deposit>() { Success = false }, "Boleto expirado, tente novamente mais tarde.");
-        }
-
-        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description));
-
-        await bus.Publish(GenerateEvent.CreateDepositEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
-
-        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Depositamos seu boleto. Entre 1 a 30 min seu dinheira cairá na sua conta.");
-    }
 
     [HttpPost("direct-deposit")]
     public async Task<IActionResult> DirectDeposit(DirectDeposit directDeposit)
@@ -91,9 +89,9 @@ public class DepositController(IDepositRepository depositRepository,
 
         deposit.GenerateDepositDirect(directDeposit);
 
-        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description));
+        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description, deposit.BilletType));
 
-        await bus.Publish(GenerateEvent.CreateDepositEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
+        await bus.Publish(GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
 
         return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Deposito recebido! Entre 5 a 10 min seu dinheira cairá na sua conta.");
     }

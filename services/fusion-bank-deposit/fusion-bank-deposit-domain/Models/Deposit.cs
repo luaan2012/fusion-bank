@@ -20,7 +20,7 @@ namespace fusion.bank.deposit.domain.Models
         public string Description { get; set; }
 
         [BsonRepresentation(BsonType.String)]
-        public BilletType BilletType { get; set; }
+        public ExpenseCategory BilletType { get; set; }
         public DateTime DateExpiration { get; set; }
         public DateTime DateConsuption { get; set; }
         public bool Debited { get; set; }
@@ -53,7 +53,7 @@ namespace fusion.bank.deposit.domain.Models
             AccountNumber = directDeposit.AccountNumberReceive;
             AgencyNumber = directDeposit.AgencyNumberReceiver;
             Description = directDeposit.Description;
-            BilletType = BilletType.DEPOSIT;    
+            BilletType = ExpenseCategory.DEPOSIT;    
         }
 
         public void DebitedTrue()

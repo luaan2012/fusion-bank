@@ -1,4 +1,5 @@
-﻿using fusion.bank.deposit.services;
+﻿using fusion.bank.core.Messages.Requests;
+using fusion.bank.deposit.services;
 using MassTransit;
 
 namespace fusion.bank.creditcard.api.Configuration

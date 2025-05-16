@@ -1,13 +1,12 @@
 ﻿using fusion.bank.account.domain.Interfaces;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Requests;
-using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model.Errors;
 using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewCreditCardCreatedAccountConsumer(IAccountRepository accountRepository) : IConsumer<NewCreditCardCreatedRequest>
+    public class CreditCardCreatedAccountConsumer(IAccountRepository accountRepository) : IConsumer<NewCreditCardCreatedRequest>
     {
         public async Task Consume(ConsumeContext<NewCreditCardCreatedRequest> context)
         {

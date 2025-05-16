@@ -8,7 +8,7 @@ using MassTransit;
 
 namespace fusion.bank.account.service
 {
-    public class NewTransferAccountConsumer(IAccountRepository accountRepository, IRequestClient<NewTransferCentralRequest> requestClient) : IConsumer<NewTransferAccountRequest>
+    public class TransferAccountConsumer(IAccountRepository accountRepository, IRequestClient<TransactionCentralRequest> requestClient) : IConsumer<NewTransferAccountRequest>
     {
         public async Task Consume(ConsumeContext<NewTransferAccountRequest> context)
         {
@@ -33,8 +33,8 @@ namespace fusion.bank.account.service
 
             accountReceiver.Credit(context.Message.Amount);
 
-            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new NewTransferCentralRequest(context.Message.TransferType, AccountPayer.AccountId, accountReceiver.Balance, 
-                AccountPayer.Balance, context.Message.KeyAccount, context.Message.AccountPayer, context.Message.AccountReceiver, context.Message.AgencyReceiver));
+            var response = await requestClient.GetResponse<DataContractMessage<TransferredCentralResponse>>(new TransactionCentralRequest(AccountPayer.AccountId, accountReceiver.Balance, 
+                AccountPayer.Balance, AccountPayer.AccountNumber, AccountPayer.Agency, context.Message.AccountReceiver, context.Message.AgencyReceiver, true, true));
 
             if (!response.Message.Success)
             {

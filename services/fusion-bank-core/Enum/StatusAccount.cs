@@ -2,8 +2,8 @@
 {
     public enum StatusAccount
     {
-        Active,
-        Blocked,
-        Pendent
+        ACTIVE,
+        BLOCKED,
+        PENDENT
     }
 }
