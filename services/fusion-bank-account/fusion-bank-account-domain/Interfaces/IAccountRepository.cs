@@ -19,5 +19,6 @@ namespace fusion.bank.account.domain.Interfaces
         Task<Account> ListAccountByKey(string keyAccount);
         Task SaveKeyByAccount(RegisterKeyRequest registerKey);
         Task SetDarkMode(Guid idAccount, bool darkMode);
+        Task RegisterPasswordTransaction(Guid accountId, string passwordTransaction);
     }
 }

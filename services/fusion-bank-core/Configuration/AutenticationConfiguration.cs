@@ -32,7 +32,7 @@ namespace fusion.bank.core.Configuration
             });
         }
 
-        public static void UseCorsApis(this WebApplication app)
+        public static void UseAuthenticationApis(this WebApplication app)
         {
             app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();

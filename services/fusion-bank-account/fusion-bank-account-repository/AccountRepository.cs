@@ -138,6 +138,14 @@ namespace fusion.bank.account.repository
             await accountCollection.UpdateOneAsync(filter, update);
         }
 
+        public async Task RegisterPasswordTransaction(Guid accountId, string passwordTransaction)
+        {
+            var filter = Builders<Account>.Filter.Eq(d => d.AccountId, accountId);
+            var update = Builders<Account>.Update.Set(d => d.PasswordTransaction, passwordTransaction);
+
+            await accountCollection.UpdateOneAsync(filter, update);
+        }
+
 
         public async Task UpdateAccount(Account account)
         {

@@ -3,13 +3,14 @@ using fusion.bank.central.domain.Model;
 using fusion.bank.central.domain.Request;
 using fusion.bank.central.Request;
 using fusion.bank.core.Messages.DataContract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fusion.bank.central.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
 
     public class CentralBankController(IBankRepository bankRepository, ILogger<CentralBankController> logger) : MainController
     {

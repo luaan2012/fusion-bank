@@ -43,6 +43,7 @@ namespace fusion.bank.core.Model
         public string Document { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string PasswordTransaction { get; set; }
         public bool DarkMode { get; set; }
 
         public void CreateAccount(string name, string lastName, AccountType accountType, string BankIspb, DocumentType documentType, string document, string email, string password, decimal salary )

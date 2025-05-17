@@ -6,7 +6,6 @@ using fusion.bank.core.Autentication;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
-using fusion.bank.core.Messages.Responses;
 using fusion.bank.core.Model;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -71,7 +70,6 @@ namespace fusion.bank.account.Controllers
         }
 
         [HttpGet("list-account")]
-        [AllowAnonymous]
         public async Task<IActionResult> ListAccount()
         {
             var response = new DataContractMessage<IEnumerable<Account>> { Data = await accountRepository.ListAllAccount(), Success = true };
@@ -91,7 +89,6 @@ namespace fusion.bank.account.Controllers
             return CreateResponse(new DataContractMessage<Account> { Data = await accountRepository.ListAccountByKey(keyAccount), Success = true });
         }
 
-        [AllowAnonymous]
         [HttpPut("edit-account/{accountId}")]
         public async Task<IActionResult> EditAccount(Guid accountId, AccountEditRequest accountEditRequest)
         {
@@ -140,6 +137,14 @@ namespace fusion.bank.account.Controllers
             await accountRepository.SetDarkMode(accountId, darkMode);
 
             return CreateResponse(new DataContractMessage<string> { Success = true }, "DarkMode atualizado com sucesso");
+        }
+
+        [HttpPut("register-password-transaction/{accountId}")]
+        public async Task<IActionResult> RegisterPasswordTransaction(Guid accountId, string passwordTransaction)
+        {
+            await accountRepository.RegisterPasswordTransaction(accountId, passwordTransaction);
+
+            return CreateResponse(new DataContractMessage<string> { Success = true }, "Senha cadastrada com sucesso");
         }
 
         [HttpPost("register-key-account")]
