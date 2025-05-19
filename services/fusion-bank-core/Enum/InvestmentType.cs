@@ -5,7 +5,7 @@
         CDB,
         LCI,
         LCA,
-        Stock,
+        STOCK,
         FII
     }
 }

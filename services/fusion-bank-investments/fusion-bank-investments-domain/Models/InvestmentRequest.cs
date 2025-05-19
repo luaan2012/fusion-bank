@@ -6,7 +6,7 @@ namespace fusion.bank.investments.domain.Models
     {
         public Guid AccountId { get; set; }
         public decimal Amount { get; set; }
-        public InvestmentType InvestmenType { get; set; }
+        public InvestmentType InvestmentType { get; set; }
         public string Symbol { get; set; }
     }
 }
