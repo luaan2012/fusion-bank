@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\fusion-bank-core\fusion-bank-core.csproj" />
+    <ProjectReference Include="..\fusion-bank-investments-domain\fusion-bank-investments-domain.csproj" />
+  </ItemGroup>
+
 </Project>

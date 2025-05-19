@@ -3,6 +3,7 @@ using fusion.bank.core.Autentication;
 using fusion.bank.core.Configuration;
 using fusion.bank.core.Middlewares;
 using fusion.bank.creditcard.api.Configuration;
+using fusion.bank.investments.api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,7 @@ builder.Services.AddSwaggerConfig(builder.Configuration);
 
 builder.Services.AddMassTransitConfig(builder.Configuration);
 
-builder.Services.AddDependencyInjection();
+builder.Services.AddDependencyInjection(builder.Configuration);
 
 var app = builder.Build();
 

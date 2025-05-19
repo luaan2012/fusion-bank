@@ -1,67 +1,54 @@
 ﻿using fusion.bank.core.Enum;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace fusion.bank.investments.domain.Models
 {
     public class Investment
     {
-        private readonly decimal InterestRate = 0.12M;
 
         [BsonId]
         public Guid Id { get; set; }
         public Guid AccountId { get; set; }
         public decimal Balance { get; set; }
-        public decimal PaidOff => CalculatePaidOff();
-        public decimal TotalBalance => TotalBalanceHandle();
+        public decimal PaidOff { get; set; }
+        public decimal TotalBalance { get; set; }
         public List<InvestmentEntry> Entries { get; set; } = [];
-
+        public decimal Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal CurrentMarketValue { get; set; }
+        public string Symbol { get; set; }
         [BsonRepresentation(BsonType.String)]
         public InvestmentType InvestmentType { get; set; }
         public DateTime DateInvestment { get; set; }
 
-        public void AddInvestment(decimal amount, DateTime date)
+        public void AddInvestment(decimal amount, DateTime date, decimal quantity = 0, decimal unitPrice = 0)
         {
             Entries.Add(new InvestmentEntry
             {
                 Amount = amount,
-                Date = date
+                Date = date,
+                Quantity = quantity,
+                UnitPrice = unitPrice
             });
+            Quantity += quantity;
+            UnitPrice = unitPrice;
         }
+    }
 
-        private decimal CalculatePaidOff()
-        {
-            decimal totalPaidOff = 0;
-            var dailyRate = InterestRate / 365;
+    public class InvestmentEntry
+    {
+        public decimal Amount { get; set; } // Valor da entrada
+        public DateTime Date { get; set; } // Data da entrada
+        public decimal Quantity { get; set; } // Quantidade (para ações/FIIs)
+        public decimal UnitPrice { get; set; } // Preço unitário
+    }
 
-            foreach (var entry in Entries.Where(d => decimal.IsPositive(d.Amount)))
-            {
-                var days = (DateTime.Now - entry.Date).TotalDays;
-                switch (InvestmentType)
-                {
-                    case InvestmentType.CDB:
-                    case InvestmentType.LCI:
-                    case InvestmentType.LCA:
-                        totalPaidOff += entry.Amount * (decimal)Math.Pow(1 + (double)dailyRate, days) - entry.Amount;
-                        break;
-                    default:
-                        totalPaidOff += 0;
-                        break;
-                }
-            }
-
-            return totalPaidOff;
-        }
-
-        private decimal TotalBalanceHandle()
-        {
-            decimal totalInvested = Entries.Sum(entry => entry.Amount);
-            return totalInvested + PaidOff;
-        }
-
-        public void UpdateBalance()
-        {
-            Balance = Entries.Sum(d => d.Amount);
-        }
+    public class AvailableInvestment
+    {
+        public string Symbol { get; set; }
+        public InvestmentType Type { get; set; }
+        public string Name { get; set; }
+        public decimal CurrentPrice { get; set; }
     }
 }

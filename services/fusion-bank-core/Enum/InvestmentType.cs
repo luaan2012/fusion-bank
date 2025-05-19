@@ -4,6 +4,8 @@
     {
         CDB,
         LCI,
-        LCA
+        LCA,
+        Stock,
+        FII
     }
 }
