@@ -8,6 +8,7 @@ namespace fusion.bank.events.domain.Interfaces
         Task<List<EventMessage>> ListLastTransactions(string accountId, int limit = int.MaxValue);
         Task<bool> MarkReady(Guid id);
         Task<bool> MarkReadyAllByIds(Guid[] id);
+        Task<bool> DeleteAllById(string accountId);
         Task SaveEvent(EventMessage eventMessage);
     }
 }

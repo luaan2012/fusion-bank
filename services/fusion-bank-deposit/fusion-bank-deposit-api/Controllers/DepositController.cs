@@ -1,8 +1,10 @@
 using fusion.bank.core;
 using fusion.bank.core.Enum;
+using fusion.bank.core.Interfaces;
 using fusion.bank.core.Messages.DataContract;
 using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
+using fusion.bank.core.services;
 using fusion.bank.deposit.domain.Interfaces;
 using fusion.bank.deposit.domain.Models;
 using fusion.bank.deposit.domain.Requests;
@@ -14,7 +16,7 @@ namespace fusion.bank.deposit.api.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class DepositController(IDepositRepository depositRepository, 
-    ILogger<DepositController> logger, IPublishEndpoint bus) : MainController
+    ILogger<DepositController> logger, IPublishEndpoint bus, IBackgroundTaskQueue backgroundTaskQueue) : MainController
 {
     
     [HttpPost("deposit-billet")]
@@ -35,8 +37,11 @@ public class DepositController(IDepositRepository depositRepository,
 
         await bus.Publish(new TransactionRequest(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.BilletType, depositRequest.PaymentType));
 
-        await bus.Publish(GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
-
+        await bus.Publish(deposit.BilletType == domain.ExpenseCategory.DEPOSIT 
+            ? GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO)
+            : GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO)
+            );
+        
         return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Boleto pago com sucesso.");
     }
 
@@ -89,10 +94,17 @@ public class DepositController(IDepositRepository depositRepository,
 
         deposit.GenerateDepositDirect(directDeposit);
 
-        await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description, deposit.BilletType));
+        await depositRepository.SaveDeposit(deposit);
 
-        await bus.Publish(GenerateEvent.CreateDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
+        await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
-        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Deposito recebido! Entre 5 a 10 min seu dinheira cairá na sua conta.");
+            await bus.Publish(new NewDepositAccountProducer(deposit.AccountId, deposit.DepositId, deposit.AccountNumber, deposit.AgencyNumber, deposit.Amount, deposit.Description, deposit.BilletType), cancellationToken);
+        });
+
+        await bus.Publish(GenerateEvent.CreateDirectDepositCreateEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO));
+
+        return CreateResponse(new DataContractMessage<Deposit>() { Success = true }, "Deposito recebido! Entre 10 a 20 segundos seu dinheira cairá na sua conta.");
     }
 }

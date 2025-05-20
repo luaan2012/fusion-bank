@@ -46,7 +46,6 @@ public class CreditCardController(ILogger<CreditCardController> logger, ICreditC
 
         await backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (cancellationToken) =>
         {
-            // Simular atraso de processamento (ex.: 5 segundos)
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
             var (cardType, success, suggestedLimit) = SuggestCreditCardAndLimit(
@@ -179,11 +178,6 @@ public class CreditCardController(ILogger<CreditCardController> logger, ICreditC
     public async Task<IActionResult> ListCreditCardById(Guid accountId)
     {
         var creditCard = await creditCardRepository.ListCreditCardByAccountId(accountId);
-
-        if (creditCard == null)
-        {
-            return CreateResponse(new DataContractMessage<string> { Success = false }, "Nenhum cartao de credito encontrado");
-        }
 
         return CreateResponse(new DataContractMessage<CreditCard> { Data = creditCard, Success = true });
     }

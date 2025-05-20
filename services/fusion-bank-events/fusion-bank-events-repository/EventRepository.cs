@@ -10,7 +10,9 @@ namespace fusion.bank.events.repository
     {
         private readonly IMongoCollection<EventMessage> eventCollection;
         private NotificationType[] lastTransactions = [NotificationType.TRANSFER_MADE,
-            NotificationType.TRANSFER_SCHEDULED, NotificationType.TRANSFER_RECEIVE, NotificationType.DEPOSIT_CREATE, NotificationType.DEPOSIT_CREATED];
+            NotificationType.TRANSFER_SCHEDULED, NotificationType.TRANSFER_RECEIVE, 
+            NotificationType.DEPOSIT_CREATE, NotificationType.DEPOSIT_MADE, 
+            NotificationType.DEPOSIT_DIRECT_MADE, NotificationType.BILLET_MADE];
 
         public EventRepository(IConfiguration configuration)
         {
@@ -41,7 +43,7 @@ namespace fusion.bank.events.repository
         public async Task<bool> MarkReady(Guid id)
         {
             var filter = Builders<EventMessage>.Filter.Eq(e => e.EventId, id);
-            var update = Builders<EventMessage>.Update.Set(d => d.Ready, true);
+            var update = Builders<EventMessage>.Update.Set(d => d.Read, true);
 
             var response = await eventCollection.UpdateOneAsync(filter, update);
 
@@ -51,13 +53,21 @@ namespace fusion.bank.events.repository
         public async Task<bool> MarkReadyAllByIds(Guid[] id)
         {
             var filter = Builders<EventMessage>.Filter.In(e => e.EventId, id);
-            var update = Builders<EventMessage>.Update.Set(d => d.Ready, true);
+            var update = Builders<EventMessage>.Update.Set(d => d.Read, true);
 
             var response = await eventCollection.UpdateOneAsync(filter, update);
 
             return response.ModifiedCount > 0;
         }
 
+        public async Task<bool> DeleteAllById(string accountId)
+        {
+            var filter = Builders<EventMessage>.Filter.Eq(e => e.AccountId, accountId);
+
+            var response = await eventCollection.DeleteManyAsync(filter);
+
+            return response.DeletedCount > 0;
+        }
 
         public async Task SaveEvent(EventMessage eventMessage)
         {

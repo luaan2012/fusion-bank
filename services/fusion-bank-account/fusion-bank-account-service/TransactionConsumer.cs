@@ -83,6 +83,7 @@ namespace fusion.bank.account.service
                 await accountRepository.UpdateAccount(accountReceiver);
             }
 
+            accountPayer.AddExpense(DateTime.Now, context.Message.Amount, context.Message.ExpenseCategory);
             await accountRepository.UpdateAccount(accountPayer);
 
             await bus.Publish(new DepositedAccountProducer(context.Message.DepositId, accountPayer.AccountId, accountReceiver?.AccountId, true));

@@ -29,6 +29,7 @@ namespace fusion.bank.deposit.domain.Models
 
         public void GenerateCode(DepositBilletRequest billetRequest)
         {
+            DepositId = Guid.NewGuid();
             CodeGenerate = RandomHelper.GenerateRandomNumbers(48);
             DateExpiration = DateTime.Now.AddDays(3);
             Active = true;
@@ -44,6 +45,7 @@ namespace fusion.bank.deposit.domain.Models
 
         public void GenerateDepositDirect(DirectDeposit directDeposit)
         {
+            DepositId = Guid.NewGuid();
             CodeGenerate = RandomHelper.GenerateRandomNumbers(48);
             DateExpiration = DateTime.Now.AddDays(2);
             Active = true;

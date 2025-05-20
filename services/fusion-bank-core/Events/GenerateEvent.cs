@@ -367,9 +367,48 @@ namespace fusion.bank.core
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
-                Title = "Deposito recebido",
+                Title = "Deposito em processamento",
                 Date = DateTime.UtcNow,
-                Action = NotificationType.DEPOSIT_CREATED,
+                Action = NotificationType.DEPOSIT_CREATE,
+                TransferType = transferType,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                Service = ServiceType.DEPOSIT,
+                Details = $"Depósito de {formattedAmount} já esta em processamento."
+            };
+        }
+
+        public static EventMessage CreateBilletCreateEvent(string accountId, decimal amount, TransferType transferType)
+        {
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentNullException(nameof(accountId));
+
+            var formattedAmount = FormatAmount(amount);
+            return new EventMessage
+            {
+                Title = "Boleto pago",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.BILLET_MADE,
+                TransferType = transferType,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                Service = ServiceType.DEPOSIT,
+                Details = $"Boleto pago com sucesso."
+            };
+        }
+
+
+        public static EventMessage CreateDirectDepositCreateEvent(string accountId, decimal amount, TransferType transferType)
+        {
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentNullException(nameof(accountId));
+
+            var formattedAmount = FormatAmount(amount);
+            return new EventMessage
+            {
+                Title = "Deposito em processamento",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.DEPOSIT_DIRECT_CREATE,
                 TransferType = transferType,
                 AccountId = accountId,
                 Amount = formattedAmount,
@@ -378,7 +417,7 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateDepositCreatedEvent(string accountId, decimal amount, TransferType transferType)
+        public static EventMessage CreateDirectDepositMadeEvent(string accountId, decimal amount, TransferType transferType)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
@@ -386,14 +425,14 @@ namespace fusion.bank.core
             var formattedAmount = FormatAmount(amount);
             return new EventMessage
             {
-                Title = "Pagamento de boleto",
+                Title = "Deposito concluido",
                 Date = DateTime.UtcNow,
-                Action = NotificationType.DEPOSIT_CREATE,
+                Action = NotificationType.DEPOSIT_DIRECT_MADE,
                 TransferType = transferType,
                 AccountId = accountId,
                 Amount = formattedAmount,
                 Service = ServiceType.DEPOSIT,
-                Details = $"Depósito de {formattedAmount} recebido com sucesso em sua conta. Entre 1 a 30 min o valor será creditado."
+                Details = $"Recebemos seu depósito no valor de {amount} e já está na sua conta."
             };
         }
     }

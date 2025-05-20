@@ -24,11 +24,11 @@ namespace fusion.bank.deposit.services
 
             await depositRepository.UpdateDeposit(deposit);
 
-            var eventDeposit = deposit.BilletType == ExpenseCategory.DEPOSIT && deposit.DirectToAccount
-                ? GenerateEvent.CreateDepositCreatedEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO)
-                : GenerateEvent.CreateDepositCreatedEvent(context.Message.AccountIdReceiver.ToString(), deposit.Amount, TransferType.BOLETO);
-
-            await bus.Publish(eventDeposit);
+            if(deposit.BilletType == ExpenseCategory.DEPOSIT && deposit.DirectToAccount)
+            {
+                var eventDeposit = GenerateEvent.CreateDirectDepositMadeEvent(deposit.AccountId.ToString(), deposit.Amount, TransferType.BOLETO);
+                await bus.Publish(eventDeposit);
+            }
         }
     }
 }
