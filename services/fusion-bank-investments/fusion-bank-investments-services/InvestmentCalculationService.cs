@@ -16,6 +16,7 @@ namespace fusion.bank.investments.Services
         public async Task CalculatePaidOffAsync(Investment investment)
         {
             decimal totalPaidOff = 0;
+            decimal currentMarkPrice = 0;
             var currentDate = DateTime.UtcNow;
 
             // Busca a taxa Selic diária para CDB, LCI ou LCA
@@ -24,6 +25,11 @@ namespace fusion.bank.investments.Services
             {
                 var selicRate = await _investmentService.GetSelicRateAsync();
                 dailySelicRate = selicRate;
+            }
+
+            if(investment.InvestmentType is InvestmentType.FII or InvestmentType.STOCK)
+            {
+                currentMarkPrice = await _investmentService.GetCurrentPriceAsync(investment.Symbol);
             }
 
             foreach (var entry in investment.Entries.Where(d => decimal.IsPositive(d.Amount)))
@@ -57,7 +63,7 @@ namespace fusion.bank.investments.Services
                     case InvestmentType.FII:
                         if (entry.Quantity > 0 && entry.UnitPrice >= 0)
                         {
-                            totalPaidOff += (investment.CurrentMarketValue - entry.UnitPrice) * entry.Quantity;
+                            totalPaidOff += (currentMarkPrice - entry.UnitPrice) * entry.Quantity;
                         }
                         break;
 

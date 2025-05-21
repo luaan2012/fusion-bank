@@ -141,19 +141,66 @@ namespace fusion.bank.core
             };
         }
 
-        public static EventMessage CreateInvestmentEvent(string accountId, decimal amount, string investmentType)
+        public static EventMessage CreateInvestmentEvent(string accountId, string name, decimal amount, InvestmentType investmentType, int? quantity = null)
         {
             var formattedAmount = FormatAmount(amount);
+            var isStockOrFII = investmentType == InvestmentType.STOCK || investmentType == InvestmentType.FII;
+            var details = isStockOrFII && quantity.HasValue
+                ? $"Parabéns! Você investiu {formattedAmount} em {quantity} cotas de {name}."
+                : $"Parabéns! Você investiu {formattedAmount} em {name}.";
+
             return new EventMessage
             {
                 Title = "Investimento realizado",
                 Date = DateTime.UtcNow,
-                Action = NotificationType.INVESTMENT,
+                Action = NotificationType.INVESTMENT_CREATE,
                 AccountId = accountId,
                 Amount = formattedAmount,
-                Investment = investmentType,
+                Investment = investmentType.ToString(),
                 Service = ServiceType.INVESTMENT,
-                Details = $"Você investiu {formattedAmount} em {investmentType}."
+                Details = details
+            };
+        }
+
+        public static EventMessage CreateInvestmentPurchaseEvent(string accountId, string name, decimal amount, InvestmentType investmentType, int? quantity = null)
+        {
+            var formattedAmount = FormatAmount(amount);
+            var isStockOrFII = investmentType == InvestmentType.STOCK || investmentType == InvestmentType.FII;
+            var details = isStockOrFII && quantity.HasValue
+                ? $"Você adquiriu mais {quantity} cotas de {name} por {formattedAmount}."
+                : $"Você investiu mais {formattedAmount} em {name}.";
+
+            return new EventMessage
+            {
+                Title = "Compra adicional realizada",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.INVESTMENT_HANDLE,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                Investment = investmentType.ToString(),
+                Service = ServiceType.INVESTMENT,
+                Details = details
+            };
+        }
+
+        public static EventMessage CreateInvestmentRescueEvent(string accountId, string name, decimal amount, InvestmentType investmentType, int? quantity = null)
+        {
+            var formattedAmount = FormatAmount(amount);
+            var isStockOrFII = investmentType == InvestmentType.STOCK || investmentType == InvestmentType.FII;
+            var details = isStockOrFII && quantity.HasValue
+                ? $"Você resgatou {quantity} cotas de {name} no valor de {formattedAmount}."
+                : $"Você resgatou {formattedAmount} de {name}.";
+
+            return new EventMessage
+            {
+                Title = "Resgate realizado",
+                Date = DateTime.UtcNow,
+                Action = NotificationType.INVESTMENT_RESCUE,
+                AccountId = accountId,
+                Amount = formattedAmount,
+                Investment = investmentType.ToString(),
+                Service = ServiceType.INVESTMENT,
+                Details = details
             };
         }
 

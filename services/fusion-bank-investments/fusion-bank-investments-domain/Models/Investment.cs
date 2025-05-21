@@ -18,9 +18,10 @@ namespace fusion.bank.investments.domain.Models
         public List<InvestmentEntry> Entries { get; set; } = [];
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal CurrentMarketValue { get; set; }
+        public decimal RegularMarketPrice { get; set; }
         public string Symbol { get; set; }
         public string ShortName { get; set; }
+        public string Name { get; set; }
         public string Logourl { get; set; }
 
         [BsonRepresentation(BsonType.String)]

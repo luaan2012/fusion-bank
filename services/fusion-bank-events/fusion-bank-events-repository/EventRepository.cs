@@ -55,7 +55,7 @@ namespace fusion.bank.events.repository
             var filter = Builders<EventMessage>.Filter.In(e => e.EventId, id);
             var update = Builders<EventMessage>.Update.Set(d => d.Read, true);
 
-            var response = await eventCollection.UpdateOneAsync(filter, update);
+            var response = await eventCollection.UpdateManyAsync(filter, update);
 
             return response.ModifiedCount > 0;
         }

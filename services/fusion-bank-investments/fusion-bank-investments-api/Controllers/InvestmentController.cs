@@ -75,8 +75,9 @@ namespace fusion_bank_investments_api.Controllers
 
             await _publishEndpoint.Publish(GenerateEvent.CreateInvestmentEvent(
                 investment.AccountId.ToString(),
+                investment.Symbol,
                 investment.Amount,
-                investment.Symbol));
+                investment.InvestmentType));
           
             return CreateResponse(new DataContractMessage<string> { Success = true }, "Parabéns! Você deu o primeiro passo para se tornar milionário.");
         }
@@ -89,7 +90,7 @@ namespace fusion_bank_investments_api.Controllers
             if (investment is null)
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Nenhum investimento foi encontrado.");
             
-            investment.CurrentMarketValue = await _investmentService.GetCurrentPriceAsync(investment.Symbol);
+            investment.RegularMarketPrice = await _investmentService.GetCurrentPriceAsync(investment.Symbol);
 
             var accountRequest = await _requestInvestment.GetResponse<DataContractMessage<AccountInvestmentResponse>>(
                     new NewInvestmentRequest(investment.AccountId, amount));
@@ -99,11 +100,17 @@ namespace fusion_bank_investments_api.Controllers
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Aconteceu um erro ao tentar resgatar seu dinheiro, mas fique tranquilo... já estamos processando sua solicitação.");
             }
 
-            decimal quantity = investment.CurrentMarketValue > 0 ? amount / investment.CurrentMarketValue : 0;
-            investment.AddInvestment(amount, DateTime.Now, quantity, investment.CurrentMarketValue);
+            decimal quantity = investment.RegularMarketPrice > 0 ? amount / investment.RegularMarketPrice : 0;
+            investment.AddInvestment(amount, DateTime.Now, quantity, investment.RegularMarketPrice);
             await _calculationService.CalculatePaidOffAsync(investment);
 
             await _investmentRepository.Update(investment);
+
+            await _publishEndpoint.Publish(GenerateEvent.CreateInvestmentPurchaseEvent(
+                investment.AccountId.ToString(),
+                investment.Symbol,
+                amount,
+                investment.InvestmentType));
 
             return CreateResponse(new DataContractMessage<List<Investment>> { Success = true }, "Já estamos processando sua solicitação, aguarde alguns instantes");
         }
@@ -112,6 +119,8 @@ namespace fusion_bank_investments_api.Controllers
         public async Task<IActionResult> RescueInvestment(Guid accountId, Guid investmentId, decimal amount)
         {
             var investment = await _investmentRepository.GetInvestmentById(investmentId, accountId);
+
+            await _calculationService.CalculatePaidOffAsync(investment);
 
             if (investment is null)
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Nenhum investimento foi encontrado.");
@@ -128,13 +137,17 @@ namespace fusion_bank_investments_api.Controllers
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Aconteceu um erro ao tentar resgatar seu dinheiro, mas fique tranquilo... já estamos processando sua solicitação.");
             }
 
-            decimal quantity = investment.CurrentMarketValue > 0 ? amount / investment.CurrentMarketValue : 0;
+            decimal quantity = investment.RegularMarketPrice > 0 ? amount / investment.RegularMarketPrice : 0;
 
-            investment.RescueInvestment(amount, DateTime.Now, quantity, investment.CurrentMarketValue);
-
-            await _calculationService.CalculatePaidOffAsync(investment);
+            investment.RescueInvestment(amount, DateTime.Now, quantity, investment.RegularMarketPrice);
 
             await _investmentRepository.Update(investment);
+
+            await _publishEndpoint.Publish(GenerateEvent.CreateInvestmentRescueEvent(
+                investment.AccountId.ToString(),
+                investment.Symbol,
+                amount,
+                investment.InvestmentType));
 
             return CreateResponse(new DataContractMessage<List<Investment>> { Success = true }, "Já estamos processando sua solicitação, aguarde alguns instantes");
         }
@@ -219,9 +232,10 @@ namespace fusion_bank_investments_api.Controllers
                 InvestmentType = investmentRequest.InvestmentType,
                 UnitPrice = unitPrice,
                 Symbol = investmentRequest.Symbol,
-                CurrentMarketValue = availableInvestment.RegularMarketPrice,
+                RegularMarketPrice = availableInvestment.RegularMarketPrice,
                 Logourl = availableInvestment.Logourl,
                 ShortName = availableInvestment.ShortName,
+                Name = availableInvestment.LongName,
             };
 
             investment.AddInvestment(investmentRequest.Amount, DateTime.Now, quantity, unitPrice);

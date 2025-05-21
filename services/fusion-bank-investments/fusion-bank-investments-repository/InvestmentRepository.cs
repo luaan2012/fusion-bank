@@ -24,7 +24,8 @@ namespace fusion.bank.investments.repository
 
         public async Task<List<Investment>> ListInvestmentByAccountId(Guid accountId, int limit)
         {
-            var filter = Builders<Investment>.Filter.Eq(e => e.AccountId, accountId);
+            var filter = Builders<Investment>.Filter.And(Builders<Investment>.Filter.Eq(e => e.AccountId, accountId),
+                Builders<Investment>.Filter.Gt(e => e.Quantity, 0));
 
             return await investmentCollection.Find(filter)
                 .Limit(limit)
@@ -45,7 +46,7 @@ namespace fusion.bank.investments.repository
 
         public async Task Update(Investment investment)
         {
-            await investmentCollection.DeleteOneAsync(d => d.AccountId == investment.AccountId);
+            await investmentCollection.DeleteOneAsync(d => d.Id == investment.Id);
 
             await investmentCollection.InsertOneAsync(investment);
         }
