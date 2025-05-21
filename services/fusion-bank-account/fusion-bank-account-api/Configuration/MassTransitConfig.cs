@@ -1,4 +1,5 @@
 ﻿using fusion.bank.account.service;
+using fusion.bank.core.Messages.Producers;
 using fusion.bank.core.Messages.Requests;
 using MassTransit;
 
@@ -23,7 +24,7 @@ namespace fusion.bank.account.api.Configuration
 
                 busCfg.AddRequestClient<NewDepositCentralRequest>();
                 busCfg.AddRequestClient<TransactionCentralRequest>();
-                busCfg.AddRequestClient<NewKeyAccountRequest>();
+                busCfg.AddRequestClient<NewAccountProducer>();
                 busCfg.AddRequestClient<CreditCardTransactionRequest>();
 
                 busCfg.UsingRabbitMq((ctx, cfg) =>

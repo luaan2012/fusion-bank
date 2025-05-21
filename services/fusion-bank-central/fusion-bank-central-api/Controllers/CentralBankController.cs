@@ -10,7 +10,6 @@ namespace fusion.bank.central.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
 
     public class CentralBankController(IBankRepository bankRepository, ILogger<CentralBankController> logger) : MainController
     {

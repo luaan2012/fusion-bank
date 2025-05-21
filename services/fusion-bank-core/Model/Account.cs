@@ -62,6 +62,7 @@ namespace fusion.bank.core.Model
             Document = document;
             Email = email;
             Password = BCrypt.Net.BCrypt.HashPassword(password);
+            DarkMode = true;
 
             GetLimitAccount();
         }

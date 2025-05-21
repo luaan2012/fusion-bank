@@ -38,7 +38,19 @@ namespace fusion.bank.investments.domain.Models
             });
             Quantity += quantity;
             UnitPrice = unitPrice;
+        }
 
+        public void RescueInvestment(decimal amount, DateTime date, decimal quantity = 0, decimal unitPrice = 0)
+        {
+            Entries.Add(new InvestmentEntry
+            {
+                Amount = -amount,
+                Quantity = -quantity,
+                UnitPrice = unitPrice,
+                Date = date,
+            });
+            Quantity -= quantity;
+            UnitPrice = unitPrice;
         }
 
         private decimal CalculateTotalBalance()

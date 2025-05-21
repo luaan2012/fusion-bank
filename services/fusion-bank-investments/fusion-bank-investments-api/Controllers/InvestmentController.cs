@@ -81,52 +81,60 @@ namespace fusion_bank_investments_api.Controllers
             return CreateResponse(new DataContractMessage<string> { Success = true }, "Parabéns! Você deu o primeiro passo para se tornar milionário.");
         }
 
-        [HttpGet("handle-investment")]
+        [HttpPut("handle-investment")]
         public async Task<IActionResult> HandleInvestment(Guid accountId, Guid investmentId, decimal amount)
         {
             var investment = await _investmentRepository.GetInvestmentById(investmentId, accountId);
 
             if (investment is null)
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Nenhum investimento foi encontrado.");
-
             
             investment.CurrentMarketValue = await _investmentService.GetCurrentPriceAsync(investment.Symbol);
 
-            if (decimal.IsNegative(amount) && investment.TotalBalance < Math.Abs(amount))
-                return CreateResponse(new DataContractMessage<string> { Success = false }, "Valor solicitado é maior que o investido.");
-
-            Response<DataContractMessage<AccountInvestmentResponse>> accountRequest = null;
-
-            if (decimal.IsPositive(amount))
-            {
-                accountRequest = await _requestInvestment.GetResponse<DataContractMessage<AccountInvestmentResponse>>(
+            var accountRequest = await _requestInvestment.GetResponse<DataContractMessage<AccountInvestmentResponse>>(
                     new NewInvestmentRequest(investment.AccountId, amount));
-            }
-            else if (decimal.IsNegative(amount))
-            {
-                accountRequest = await _requestInvestmentPut.GetResponse<DataContractMessage<AccountInvestmentResponse>>(
-                    new NewAccountRequestPutAmount(investment.AccountId, Math.Abs(amount)));
-            }
 
             if (!accountRequest?.Message?.Success ?? false)
             {
                 return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Aconteceu um erro ao tentar resgatar seu dinheiro, mas fique tranquilo... já estamos processando sua solicitação.");
             }
 
-            if (decimal.IsNegative(amount) && investment.TotalBalance == Math.Abs(amount))
-            {
-                await _investmentRepository.DeleteInvestmentById(investment.Id);
-            }
-            else
-            {
-                
-                decimal quantity = investment.CurrentMarketValue > 0 ? amount / investment.CurrentMarketValue : 0;
-                investment.AddInvestment(amount, DateTime.Now, quantity, investment.CurrentMarketValue);
-                await _calculationService.CalculatePaidOffAsync(investment);
-                //investment.CalculateTotalBalance();
+            decimal quantity = investment.CurrentMarketValue > 0 ? amount / investment.CurrentMarketValue : 0;
+            investment.AddInvestment(amount, DateTime.Now, quantity, investment.CurrentMarketValue);
+            await _calculationService.CalculatePaidOffAsync(investment);
 
-                await _investmentRepository.Update(investment);
+            await _investmentRepository.Update(investment);
+
+            return CreateResponse(new DataContractMessage<List<Investment>> { Success = true }, "Já estamos processando sua solicitação, aguarde alguns instantes");
+        }
+
+        [HttpPut("rescue-investment/{accountId}")]
+        public async Task<IActionResult> RescueInvestment(Guid accountId, Guid investmentId, decimal amount)
+        {
+            var investment = await _investmentRepository.GetInvestmentById(investmentId, accountId);
+
+            if (investment is null)
+                return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Nenhum investimento foi encontrado.");
+
+
+            if (investment.TotalBalance < Math.Abs(amount))
+                return CreateResponse(new DataContractMessage<string> { Success = false }, "Valor solicitado é maior que o investido.");
+
+            var accountRequest = await _requestInvestmentPut.GetResponse<DataContractMessage<AccountInvestmentResponse>>(
+                    new NewAccountRequestPutAmount(investment.AccountId, amount));
+
+            if (!accountRequest?.Message?.Success ?? false)
+            {
+                return CreateResponse(new DataContractMessage<List<Investment>> { Success = false }, "Aconteceu um erro ao tentar resgatar seu dinheiro, mas fique tranquilo... já estamos processando sua solicitação.");
             }
+
+            decimal quantity = investment.CurrentMarketValue > 0 ? amount / investment.CurrentMarketValue : 0;
+
+            investment.RescueInvestment(amount, DateTime.Now, quantity, investment.CurrentMarketValue);
+
+            await _calculationService.CalculatePaidOffAsync(investment);
+
+            await _investmentRepository.Update(investment);
 
             return CreateResponse(new DataContractMessage<List<Investment>> { Success = true }, "Já estamos processando sua solicitação, aguarde alguns instantes");
         }

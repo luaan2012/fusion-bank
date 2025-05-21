@@ -18,7 +18,7 @@ namespace fusion.bank.account.Controllers
     [Authorize]
     public class AccountController(IAccountRepository accountRepository, 
         ILogger<AccountController> logger, IPublishEndpoint bus, 
-        IRequestClient<NewKeyAccountRequest> requestClient, 
+        IRequestClient<NewAccountProducer> requestClient, 
         IPublishEndpoint publishEndpoint,
         IConfiguration configuration) : MainController
     {
@@ -30,8 +30,6 @@ namespace fusion.bank.account.Controllers
 
             account.CreateAccount(accountRequest.Name, accountRequest.LastName, accountRequest.AccountType, accountRequest.BankISBP,
                 accountRequest.DocumentType, accountRequest.Document, accountRequest.Email, accountRequest.Password, accountRequest.SalaryPerMonth);
-
-            await accountRepository.SaveAccount(account);
 
             var response = await requestClient.GetResponse<DataContractMessage<CreatedAccountResponse>>(new NewAccountProducer(account.AccountId,
                 account.Name, account.LastName, account.FullName, account.AccountNumber, account.Agency,
@@ -47,6 +45,8 @@ namespace fusion.bank.account.Controllers
             var token = AutenticationService.GenerateJwtToken(account, configuration);
 
             await publishEndpoint.Publish(GenerateEvent.CreateAccountCreatedEvent(account.AccountId.ToString()));
+
+            await accountRepository.SaveAccount(account);
 
             return CreateResponse(new DataContractMessage<LoginResponse> { Data = new LoginResponse { Token = token, Account = account}, Success = true });
         }
